@@ -1,0 +1,19 @@
+services:
+  comandas.api:
+    image: ${DOCKER_REGISTRY-}comandasapi
+    build:
+      context: .
+      dockerfile: Comandas.Api/Dockerfile
+  mysql:
+    image: mysql:latest
+    environment: 
+      MYSQL_DATABASE: comandas
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: rootpassword
+    volumes:
+      - comandas_db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+volumes:
+  comandas_db_data: 
+
