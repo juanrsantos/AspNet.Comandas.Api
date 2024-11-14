@@ -11,8 +11,15 @@ namespace Comandas.Api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        [StringLength(100)]
         public string Nome { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        [EmailAddress(ErrorMessage ="Email inválido")]
         public string Email { get; set; } = string.Empty;
+
+        [StringLength(100)] 
         public string Senha { get; set; } = string.Empty;
     }
 }
