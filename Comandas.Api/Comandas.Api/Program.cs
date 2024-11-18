@@ -16,12 +16,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Execução das migration do banco de forma automatica , ao iniciar o aplicativo.
+using (var escopo = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var contexto = escopo.ServiceProvider.GetRequiredService<ComandaDbContext>();
+    contexto.Database.Migrate();
 }
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
 app.UseHttpsRedirection();
 
