@@ -1,3 +1,4 @@
+using Comandas.Api;
 using Comandas.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,7 @@ using (var escopo = app.Services.CreateScope())
 {
     var contexto = escopo.ServiceProvider.GetRequiredService<ComandaDbContext>();
     contexto.Database.Migrate();
+    InicializarDados.Semear(contexto);
 }
 
     // Configure the HTTP request pipeline.
