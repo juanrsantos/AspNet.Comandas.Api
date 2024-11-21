@@ -78,10 +78,5 @@ namespace Comandas.Api.Controllers
         {
             return _context.Usuarios.Any(us => us.Id == id);
         }
-
-
-
-
-
     }
 }
