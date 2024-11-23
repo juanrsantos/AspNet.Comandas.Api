@@ -18,11 +18,11 @@ namespace Comandas.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Mesa>>> GetMesas()
+        public async Task<ActionResult<IEnumerable<Mesa>>> GetMesas(CancellationToken cancellationToken)
         {
             try
             {
-                return await _context.Mesas.ToListAsync();
+                return await _context.Mesas.ToListAsync(cancellationToken);
             }
             catch (ArgumentNullException ex)
             {
