@@ -3,6 +3,7 @@ using Comandas.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Policy;
 
 namespace Comandas.Api.Controllers
 {
@@ -50,6 +51,20 @@ namespace Comandas.Api.Controllers
             return mesa;
           
         }
+
+        [HttpPost]
+        public async Task<ActionResult<Mesa>> PostMesa(Mesa mesa)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _context.Mesas.Add(mesa);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetMesa), new { id = mesa.Id }, mesa);
+        }
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMesa(int id, Mesa mesa)

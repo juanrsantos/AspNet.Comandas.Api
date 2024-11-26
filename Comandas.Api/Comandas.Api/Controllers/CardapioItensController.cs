@@ -44,6 +44,17 @@ namespace Comandas.Api.Controllers
             return cardapioitem;
         }
 
+        [HttpPost]
+        public async Task<ActionResult<CardapioItem>> PostCardapioItem(CardapioItem cardapioitem)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _context.CardapioItems.Add(cardapioitem);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetCardapioItem), new { id = cardapioitem.Id }, cardapioitem);
+        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCardapioItem(int id , CardapioItem cardapioitem)
