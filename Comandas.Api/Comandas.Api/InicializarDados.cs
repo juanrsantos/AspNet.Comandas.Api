@@ -1,4 +1,5 @@
 ﻿using Comandas.Api.Data;
+using Comandas.Api.Models;
 
 namespace Comandas.Api
 {
@@ -40,7 +41,53 @@ namespace Comandas.Api
                 });
             }
 
+            if (!context.Mesas.Any())
+            {
+                context.Mesas.AddRange(new Models.Mesa
+                {
+                    NumeroMesa = 1,
+                    SituacaoMesa = 0
+                }, new Models.Mesa
+                {
+                    NumeroMesa = 2,
+                    SituacaoMesa = 0
 
+                }, new Models.Mesa
+                {
+                    NumeroMesa = 3,
+                    SituacaoMesa = 1
+                }, new Models.Mesa
+                {
+                    NumeroMesa = 4,
+                    SituacaoMesa = 0
+                });
+            }
+
+            if (!context.Comandas.Any())
+            {
+                var comanda = new Models.Comanda
+                {
+                    NomeCliente = "Juan Rodrigues",
+                    NumeroMesa = 3,
+                    SituacaoComanda = 1
+                };
+
+                context.Comandas.Add(comanda);
+
+                ComandaItem[] comandaitems =
+                {
+                    new ComandaItem
+                    {
+                        Comanda = comanda,
+                        CardapioItemId = 1
+                    }
+                };
+                if (!context.ComandaItems.Any())
+                {
+                    context.ComandaItems.AddRange(comandaitems);
+                }
+
+            }
 
 
             context.SaveChanges();

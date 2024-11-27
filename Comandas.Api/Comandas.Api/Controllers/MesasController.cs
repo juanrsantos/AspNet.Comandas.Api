@@ -64,8 +64,6 @@ namespace Comandas.Api.Controllers
             return CreatedAtAction(nameof(GetMesa), new { id = mesa.Id }, mesa);
         }
 
-
-
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMesa(int id, Mesa mesa)
         {
