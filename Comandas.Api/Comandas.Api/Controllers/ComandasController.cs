@@ -3,6 +3,7 @@ using Comandas.Api.Dtos;
 using Comandas.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -65,6 +66,32 @@ namespace Comandas.Api.Controllers
                     CardapioItemId = item
                 };
                 _context.ComandaItems.Add(novaComandaItem);
+
+                // Consultar se o cardapio possui preparo
+                var cardapioItem = await _context.CardapioItems.FirstOrDefaultAsync(x => x.Id == item);
+                
+                if (cardapioItem is null) {
+                    return NotFound($"Cardapio com código {item} não encontrado");
+                }
+
+                if (cardapioItem.PossuiPreparo)
+                {
+                    // Se possui preparo criar Pedido de cozinha(Comanda) e Pedido de cozinha item(ComandaItem)
+                    var pedidoCozinha = new PedidoCozinha
+                    {
+                        Comanda = novaComanda,
+                        SituacaoId = 1
+                    };
+                    await _context.PedidoCozinhas.AddAsync(pedidoCozinha);
+
+                    var pedidoCozinhaItem = new PedidoCozinhaItem
+                    {
+                        PedidoCozinha = pedidoCozinha,
+                        ComandaItem = novaComandaItem,
+                    };
+
+                    await _context.PedidoCozinhaItems.AddAsync(pedidoCozinhaItem);
+                }
             }
             await _context.SaveChangesAsync();
 
@@ -74,8 +101,9 @@ namespace Comandas.Api.Controllers
 
         // PUT api/<ComandasController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void Put(int id, [FromBody] ComandaUpdateDTO comanda)
         {
+
         }
 
         // DELETE api/<ComandasController>/5
