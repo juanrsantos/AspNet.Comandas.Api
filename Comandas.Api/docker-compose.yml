@@ -19,18 +19,42 @@ services:
       - "3306:3306"
     networks:
       - comanda
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    ports:
-      - 8080:80
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   restart: always
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #   networks:
+  #     - comanda
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
-      - PMA_ARBITRARY=1
+      SA_PASSWORD: "SqlServer2019!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_db_data:/var/opt/mssql 
+    networks:
+      - comanda
+  mssqltools:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      - sqlserver
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
     networks:
       - comanda
 volumes:
   comandas_db_data:
-  
+  sql_db_data:
 networks:
   comanda: 
 

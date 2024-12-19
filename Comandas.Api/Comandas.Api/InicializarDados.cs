@@ -22,7 +22,6 @@ namespace Comandas.Api
             {
                 context.Mesas.AddRange(new Models.Mesa
                 {
-                    Id=1,
                     NumeroMesa = 123,
                     SituacaoMesa = 1
                     
@@ -33,7 +32,6 @@ namespace Comandas.Api
             {
                 context.CardapioItems.AddRange(new Models.CardapioItem
                 {
-                 Id = 1,
                  PossuiPreparo = true,
                  Preco = 50,
                  Descricao = "Prato Principal",
@@ -84,7 +82,7 @@ namespace Comandas.Api
                 };
                 if (!context.ComandaItems.Any())
                 {
-                    context.ComandaItems.AddRange(comandaitems);
+                    //context.ComandaItems.AddRange(comandaitems);
                 }
 
             }

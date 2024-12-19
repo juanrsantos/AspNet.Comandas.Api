@@ -1,8 +1,13 @@
 ﻿using Comandas.Api.Data;
+using Comandas.Api.Dtos;
 using Comandas.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Comandas.Api.Controllers
 {
@@ -16,6 +21,31 @@ namespace Comandas.Api.Controllers
         {
             _context = context;
         }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<UsuarioResponse>> Login([FromBody] UsuarioRequest usuarioRequest)
+        {
+            var tokengerador = new JwtSecurityTokenHandler();
+            var chave = Encoding.UTF8.GetBytes("3e8acfc238f45a314fd4b2bde272678ad30bd1774743a11dbc5c53ac71ca494b");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chave), SecurityAlgorithms.HmacSha256Signature),
+                Subject = new System.Security.Claims.ClaimsIdentity(
+                    new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, "Juan"),
+                        new Claim(ClaimTypes.NameIdentifier, "1")
+                    }
+                    )
+            };
+
+            var token = tokengerador.CreateToken(tokenDescriptor);
+            var tokenfinal = tokengerador.WriteToken(token);
+
+            return Ok(new UsuarioResponse { Nome = "Juan" , Token= tokenfinal });
+        }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()

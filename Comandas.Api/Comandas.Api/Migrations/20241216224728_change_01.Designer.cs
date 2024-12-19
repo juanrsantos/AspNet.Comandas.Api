@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Comandas.Api.Migrations
 {
     [DbContext(typeof(ComandaDbContext))]
-    [Migration("20241118223611_change_01")]
+    [Migration("20241216224728_change_01")]
     partial class change_01
     {
         /// <inheritdoc />
@@ -20,9 +20,9 @@ namespace Comandas.Api.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.4")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Comandas.Api.Models.CardapioItem", b =>
                 {
@@ -30,15 +30,15 @@ namespace Comandas.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(300)
-                        .HasColumnType("varchar(300)");
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<bool>("PossuiPreparo")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("Preco")
                         .HasColumnType("decimal(10,2)");
@@ -46,11 +46,11 @@ namespace Comandas.Api.Migrations
                     b.Property<string>("Titulo")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("CardapioItem");
+                    b.ToTable("CardapioItems");
                 });
 
             modelBuilder.Entity("Comandas.Api.Models.Comanda", b =>
@@ -59,12 +59,12 @@ namespace Comandas.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("NomeCliente")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("NumeroMesa")
                         .HasColumnType("int");
@@ -74,7 +74,7 @@ namespace Comandas.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Comanda");
+                    b.ToTable("Comandas");
                 });
 
             modelBuilder.Entity("Comandas.Api.Models.ComandaItem", b =>
@@ -83,7 +83,7 @@ namespace Comandas.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CardapioItemId")
                         .HasColumnType("int");
@@ -97,7 +97,26 @@ namespace Comandas.Api.Migrations
 
                     b.HasIndex("ComandaId");
 
-                    b.ToTable("ComandaItem");
+                    b.ToTable("ComandaItems");
+                });
+
+            modelBuilder.Entity("Comandas.Api.Models.Mesa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("NumeroMesa")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SituacaoMesa")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Mesas");
                 });
 
             modelBuilder.Entity("Comandas.Api.Models.PedidoCozinha", b =>
@@ -106,7 +125,7 @@ namespace Comandas.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ComandaId")
                         .HasColumnType("int");
@@ -118,7 +137,7 @@ namespace Comandas.Api.Migrations
 
                     b.HasIndex("ComandaId");
 
-                    b.ToTable("PedidoCozinha");
+                    b.ToTable("PedidoCozinhas");
                 });
 
             modelBuilder.Entity("Comandas.Api.Models.PedidoCozinhaItem", b =>
@@ -127,7 +146,7 @@ namespace Comandas.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ComandaItemId")
                         .HasColumnType("int");
@@ -141,7 +160,35 @@ namespace Comandas.Api.Migrations
 
                     b.HasIndex("PedidoCozinhaId");
 
-                    b.ToTable("PedidoCozinhaItem");
+                    b.ToTable("PedidoCozinhaItems");
+                });
+
+            modelBuilder.Entity("Comandas.Api.Models.Usuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Senha")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("Comandas.Api.Models.ComandaItem", b =>
