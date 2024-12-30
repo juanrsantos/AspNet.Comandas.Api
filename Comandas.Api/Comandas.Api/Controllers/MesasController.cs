@@ -1,5 +1,6 @@
 ﻿using Comandas.Api.Data;
 using Comandas.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ namespace Comandas.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MesasController : ControllerBase
     {
         private readonly ComandaDbContext _context;

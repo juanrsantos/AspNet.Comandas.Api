@@ -1,6 +1,7 @@
 ﻿using Comandas.Api.Data;
 using Comandas.Api.Dtos;
 using Comandas.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,20 @@ namespace Comandas.Api.Controllers
         {
             var tokengerador = new JwtSecurityTokenHandler();
             var chave = Encoding.UTF8.GetBytes("3e8acfc238f45a314fd4b2bde272678ad30bd1774743a11dbc5c53ac71ca494b");
+            // Consultar usuario no banco 
+            var usuario = _context.Usuarios.FirstOrDefault(x => x.Email == usuarioRequest.Email);
+
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado");
+            }
+
+            if (!usuario.Senha.Equals(usuarioRequest.Senha))
+            {
+                return BadRequest("Usuário/Senha invalida");
+            }
+
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Expires = DateTime.UtcNow.AddMinutes(10),
@@ -34,8 +49,8 @@ namespace Comandas.Api.Controllers
                 Subject = new System.Security.Claims.ClaimsIdentity(
                     new Claim[]
                     {
-                        new Claim(ClaimTypes.Name, "Juan"),
-                        new Claim(ClaimTypes.NameIdentifier, "1")
+                        new Claim(ClaimTypes.Name, usuario.Email),
+                        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString())
                     }
                     )
             };
@@ -43,17 +58,19 @@ namespace Comandas.Api.Controllers
             var token = tokengerador.CreateToken(tokenDescriptor);
             var tokenfinal = tokengerador.WriteToken(token);
 
-            return Ok(new UsuarioResponse { Nome = "Juan" , Token= tokenfinal });
+            return Ok(new UsuarioResponse { Nome = usuario.Nome , Token= tokenfinal });
         }
 
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
             return await _context.Usuarios.ToListAsync();
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
@@ -65,6 +82,7 @@ namespace Comandas.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
             _context.Entry(usuario).State = EntityState.Modified;
@@ -91,6 +109,7 @@ namespace Comandas.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);

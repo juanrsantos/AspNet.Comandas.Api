@@ -2,6 +2,7 @@
 using Comandas.Api.Dtos;
 using Comandas.Api.Enums;
 using Comandas.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
@@ -12,6 +13,7 @@ namespace Comandas.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ComandasController : ControllerBase
     {
 
