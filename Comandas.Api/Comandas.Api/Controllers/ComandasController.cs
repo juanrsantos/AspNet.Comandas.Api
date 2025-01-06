@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Comandas.Api.Controllers
 {
+    [Tags("04. Comandas")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]

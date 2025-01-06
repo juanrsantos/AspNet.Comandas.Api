@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Api.Controllers
 {
+    [Tags("05. Cardapio Itens")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]

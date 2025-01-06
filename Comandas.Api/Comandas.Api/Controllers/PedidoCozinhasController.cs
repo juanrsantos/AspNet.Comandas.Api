@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Api.Controllers
 {
+    [Tags("03. Pedido Cozinha")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]

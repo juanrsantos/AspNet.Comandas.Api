@@ -8,6 +8,7 @@ using System.Security.Policy;
 
 namespace Comandas.Api.Controllers
 {
+    [Tags("02. Mesas ")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]

@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Comandas.Api.Controllers
 {
+    [Tags("01. Usuários")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuariosController : ControllerBase
@@ -22,14 +24,22 @@ namespace Comandas.Api.Controllers
         {
             _context = context;
         }
-
+        /// <summary>
+        /// Realiza o login da aplicação
+        /// </summary>
+        /// <param name="usuarioRequest"></param>
+        /// <returns>200ok</returns>
+        [SwaggerOperation(Summary = "Gera o token de autenticação da Api", Description = "Realiza o login do usuário na aplicação, necessário informar email e senha")]
+        [SwaggerResponse(200,"retorna o nome do usuário e o token de autenticação",typeof(UsuarioResponse))]
+        [SwaggerResponse(404, "usuário não encontrado", typeof(string))]
+        [SwaggerResponse(400, "Usuário/Senha invalida", typeof(string))]
         [HttpPost("login")]
         public async Task<ActionResult<UsuarioResponse>> Login([FromBody] UsuarioRequest usuarioRequest)
         {
             var tokengerador = new JwtSecurityTokenHandler();
             var chave = Encoding.UTF8.GetBytes("3e8acfc238f45a314fd4b2bde272678ad30bd1774743a11dbc5c53ac71ca494b");
             // Consultar usuario no banco 
-            var usuario = _context.Usuarios.FirstOrDefault(x => x.Email == usuarioRequest.Email);
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Email == usuarioRequest.Email);
 
             if (usuario == null)
             {
