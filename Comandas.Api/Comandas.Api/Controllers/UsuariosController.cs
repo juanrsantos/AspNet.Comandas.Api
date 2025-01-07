@@ -2,7 +2,6 @@
 using Comandas.Api.Dtos;
 using Comandas.Api.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -70,27 +69,68 @@ namespace Comandas.Api.Controllers
 
             return Ok(new UsuarioResponse { Nome = usuario.Nome , Token= tokenfinal });
         }
-
+        [SwaggerOperation(Summary ="Obtém todos usuários", Description ="Lista todos os usuários cadastrados")]
+        [SwaggerResponse(200, "retorna a lista de usuários", typeof(IEnumerable<Usuario>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(404, "Usuários não encontado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
 
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            try
+            {
+                var usuarios = await _context.Usuarios.ToListAsync();
+                if(usuarios == null || !usuarios.Any())
+                {
+                    return NotFound("Usuários não encontrado");
+                }
+
+                return Ok(usuarios);
+            }
+            catch(DbUpdateException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao acessar o banco");
+            }
+            catch (Exception ex)
+            {
+                // Log da exceção (ex) pode ser realizado aqui
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao buscar usuários. Por favor, tente novamente mais tarde. ");
+            }
+
         }
 
+        [SwaggerOperation(Summary = "Obtém um unico usuário", Description = "Realiza o get de um unico usuario, atraves do ID")]
+        [SwaggerResponse(200, "retorna o usuário", typeof(IEnumerable<Usuario>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(404, "Usuário não encontado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario is null)
+            try
             {
-                return NotFound();
+                var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Id == id);
+
+                if (usuario is null)
+                {
+                    return NotFound();
+                }
+                return Ok(usuario);
             }
-            return usuario;
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao acessar ao banco");
+            }
+     
         }
 
+        [SwaggerOperation(Summary = "Edita usuário", Description = "Realiza alteração nos campo do usuário")]
+        [SwaggerResponse(204, "Usuário alterado", typeof(IEnumerable<Usuario>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
@@ -118,6 +158,10 @@ namespace Comandas.Api.Controllers
             return NoContent();
         }
 
+        [SwaggerOperation(Summary = "Excluir usuário", Description = "Realiza exclusão do usuário")]
+        [SwaggerResponse(204, "Usuário excluido", typeof(IEnumerable<Usuario>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteUsuario(int id)
