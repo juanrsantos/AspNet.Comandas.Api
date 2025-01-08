@@ -10,7 +10,7 @@ var conexao = builder.Configuration.GetConnectionString("ConexaoSqlServerSomee")
 // Add services to the container.
 builder.Services.AddDbContext<ComandaDbContext>(options =>
 {
-    options.UseSqlServer(conexao);
+    options.UseSqlServer(conexao).EnableSensitiveDataLogging();
     //options.UseMySql(conexao, ServerVersion.Parse("9.1.0 - MySQL Community Server - GPL"));
 });
 // Adicionando suporte a autenticação JWT 

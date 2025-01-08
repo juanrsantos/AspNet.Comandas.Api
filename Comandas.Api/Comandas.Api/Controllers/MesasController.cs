@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Policy;
 
 namespace Comandas.Api.Controllers
@@ -21,6 +22,11 @@ namespace Comandas.Api.Controllers
             _context = context;
         }
 
+        [SwaggerOperation(Summary = "Obtém todas as mesas", Description = "Lista todos as mesas cadastrado")]
+        [SwaggerResponse(200, "retorna a lista de mesas", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(404, "Mesa não encontrada", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Mesa>>> GetMesas(CancellationToken cancellationToken)
         {

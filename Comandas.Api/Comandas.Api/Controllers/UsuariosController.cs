@@ -18,10 +18,12 @@ namespace Comandas.Api.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly ComandaDbContext _context;
+        private readonly ILogger<UsuariosController> _logger;
 
-        public UsuariosController(ComandaDbContext context)
+        public UsuariosController(ComandaDbContext context, ILogger<UsuariosController> logger)
         {
             _context = context;
+            _logger = logger;
         }
         /// <summary>
         /// Realiza o login da aplicação
@@ -38,7 +40,9 @@ namespace Comandas.Api.Controllers
             var tokengerador = new JwtSecurityTokenHandler();
             var chave = Encoding.UTF8.GetBytes("3e8acfc238f45a314fd4b2bde272678ad30bd1774743a11dbc5c53ac71ca494b");
             // Consultar usuario no banco 
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Email == usuarioRequest.Email);
+            // TagWith colocar um cabeçalho no log de saida do sql.
+            // AsNoTracking serve para não rastrear modificações na tabela, tornando a consulta mais leve. 
+            var usuario = await _context.Usuarios.TagWith("Login").AsNoTracking().FirstOrDefaultAsync(x => x.Email == usuarioRequest.Email);
 
             if (usuario == null)
             {
@@ -79,23 +83,26 @@ namespace Comandas.Api.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
+            _logger.LogInformation($"[{nameof(GetUsuarios)}] Iniciando consulta de usuários");
             try
             {
-                var usuarios = await _context.Usuarios.ToListAsync();
+                var usuarios = await _context.Usuarios.TagWith("GetUsuarios").AsNoTracking().ToListAsync();
                 if(usuarios == null || !usuarios.Any())
                 {
                     return NotFound("Usuários não encontrado");
                 }
-
+                _logger.LogInformation($"[{nameof(GetUsuarios)}] Usuários obtido com sucesso");
                 return Ok(usuarios);
             }
             catch(DbUpdateException ex)
             {
+                _logger.LogError(ex, "Erro");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao acessar o banco");
             }
             catch (Exception ex)
             {
                 // Log da exceção (ex) pode ser realizado aqui
+                _logger.LogError(ex, "Erro"); 
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao buscar usuários. Por favor, tente novamente mais tarde. ");
             }
 
