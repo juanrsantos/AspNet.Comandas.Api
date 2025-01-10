@@ -26,7 +26,7 @@ namespace Comandas.Api.Controllers
         {
             try
             {
-                return await _context.CardapioItems.ToListAsync();
+                return await _context.CardapioItems.AsNoTracking().ToListAsync();
             }
             catch (Exception) 
             {
@@ -104,7 +104,7 @@ namespace Comandas.Api.Controllers
         }
         private bool CardapioItemExists (int id)
         {
-            return _context.CardapioItems.Any(x => x.Id == id);
+            return _context.CardapioItems.AsNoTracking().Any(x => x.Id == id);
         }
     }
 }

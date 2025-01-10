@@ -25,14 +25,14 @@ namespace Comandas.Api.Controllers
         [SwaggerOperation(Summary = "Obtém todas as mesas", Description = "Lista todos as mesas cadastrado")]
         [SwaggerResponse(200, "retorna a lista de mesas", typeof(IEnumerable<Mesa>))]
         [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
-        [SwaggerResponse(404, "Mesa não encontrada", typeof(string))]
+        [SwaggerResponse(404, "Mesas não encontrada", typeof(string))]
         [SwaggerResponse(500, "Internal Server Error")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Mesa>>> GetMesas(CancellationToken cancellationToken)
         {
             try
             {
-                return await _context.Mesas.ToListAsync(cancellationToken);
+                return await _context.Mesas.AsNoTracking().ToListAsync(cancellationToken);
             }
             catch (ArgumentNullException ex)
             {
@@ -48,6 +48,13 @@ namespace Comandas.Api.Controllers
             }
         }
 
+
+
+        [SwaggerOperation(Summary = "Obtém uma unica mesa", Description = "Obtém a mesa por Id")]
+        [SwaggerResponse(200, "retorna uma unica mesa", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(404, "Mesa não encontrada", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Mesa>> GetMesa(int id)
         {
@@ -61,6 +68,10 @@ namespace Comandas.Api.Controllers
           
         }
 
+        [SwaggerOperation(Summary = "Cria uma nova mesa", Description = "Cria uma nova mesa")]
+        [SwaggerResponse(201, "retorna Id da mesa criada", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpPost]
         public async Task<ActionResult<Mesa>> PostMesa(Mesa mesa)
         {
@@ -73,6 +84,10 @@ namespace Comandas.Api.Controllers
             return CreatedAtAction(nameof(GetMesa), new { id = mesa.Id }, mesa);
         }
 
+        [SwaggerOperation(Summary = "Edita uma mesa", Description = "Edita uma mesa")]
+        [SwaggerResponse(204, "Mesa Editada", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMesa(int id, Mesa mesa)
         {
@@ -109,6 +124,10 @@ namespace Comandas.Api.Controllers
             return NoContent();
         }
 
+        [SwaggerOperation(Summary = "Exclui uma mesa", Description = "Exclui uma mesa")]
+        [SwaggerResponse(204, "Mesa Excluida", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMesa(int id)
         {

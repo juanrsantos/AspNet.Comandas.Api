@@ -119,7 +119,7 @@ namespace Comandas.Api.Controllers
         {
             try
             {
-                var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Id == id);
+                var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
                 if (usuario is null)
                 {

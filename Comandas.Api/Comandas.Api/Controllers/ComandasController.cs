@@ -5,6 +5,7 @@ using Comandas.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Runtime.InteropServices;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,11 +26,16 @@ namespace Comandas.Api.Controllers
         }
 
         // GET: api/<ComandasController>
+        [SwaggerOperation(Summary = "Obtém todas as comandas", Description = "Lista todas as comandas")]
+        [SwaggerResponse(200, "retorna a lista de comandas", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ComandaGetDTO>>> Get()
         {
-            var comandas = await _context.Comandas
-                .Where(x => x.SituacaoComanda == 1)
+            var comandas = await _context.Comandas.AsNoTracking()
+                .Where(x => x.SituacaoComanda == 1).AsNoTracking()
                 .Select(x => new ComandaGetDTO
                 {
                     Id = x.Id,
@@ -46,10 +52,15 @@ namespace Comandas.Api.Controllers
         }
 
         // GET api/<ComandasController>/5
+        [SwaggerOperation(Summary = "Obtém a comanda", Description = "Obtém a comanda por Id")]
+        [SwaggerResponse(200, "retorna a comanda especifica", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task <ActionResult<ComandaGetDTO>> Get(int id)
         {
-            var comanda = await _context.Comandas.FirstOrDefaultAsync(x => x.Id == id);
+            var comanda = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if(comanda is null)
             {
                 return NotFound($"Comanda {id} não encontrada ");
@@ -74,10 +85,15 @@ namespace Comandas.Api.Controllers
         }
 
         // POST api/<ComandasController>
+        [SwaggerOperation(Summary = "Cria uma nova comanda", Description = "Cria uma nova comanda")]
+        [SwaggerResponse(201, "retorna o id do objeto criado", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Comanda>> Post([FromBody] ComandaDTO comanda)
         {
-            var mesa = await _context.Mesas.FirstOrDefaultAsync(x => x.NumeroMesa == comanda.NumeroMesa);
+            var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comanda.NumeroMesa);
 
             if (mesa is null) {
                 return BadRequest("Mesa não encontrada");
@@ -139,10 +155,14 @@ namespace Comandas.Api.Controllers
         }
 
         // PUT api/<ComandasController>/5
+        [SwaggerOperation(Summary = "Edita comanda", Description = "Edita uma comanda")]
+        [SwaggerResponse(204, "Comanda editada ", typeof(IEnumerable<Mesa>))]
+        [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]
+        [SwaggerResponse(500, "Internal Server Error")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] ComandaUpdateDTO comanda)
         {
-            var comandaUpdate = await _context.Comandas.FirstOrDefaultAsync(x => x.Id == id);
+            var comandaUpdate = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             if(comandaUpdate is null)
             {
@@ -156,7 +176,7 @@ namespace Comandas.Api.Controllers
             if (comanda.NumeroMesa > 0) 
             {
                 // Verificar disponibilidade da mesa
-                var mesa = await _context.Mesas.FirstOrDefaultAsync(x =>x.NumeroMesa == comanda.NumeroMesa);
+                var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x =>x.NumeroMesa == comanda.NumeroMesa);
 
                 if(mesa is null)
                 {
@@ -169,7 +189,7 @@ namespace Comandas.Api.Controllers
                 // Mudar status da mesa para ocupado
                 mesa.SituacaoMesa = (int) SituacaoMesaEnum.Ocupado;
                 // Mudar o status da mesa antiga para disponivel 
-                var mesaantiga = await _context.Mesas.FirstOrDefaultAsync(x => x.NumeroMesa == comandaUpdate.NumeroMesa);
+                var mesaantiga = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comandaUpdate.NumeroMesa);
                 mesaantiga.SituacaoMesa = (int)SituacaoMesaEnum.Disponivel;
                 // Atualizar o numero da mesa comanda
                 comandaUpdate.NumeroMesa = comanda.NumeroMesa;
@@ -219,7 +239,7 @@ namespace Comandas.Api.Controllers
                 // verificar se esta excluindo itens 
                 if (item.Excluir)
                 {
-                    var comandaItemExcluir = await _context.ComandaItems.FirstAsync(x => x.Id == item.Id);
+                    var comandaItemExcluir = await _context.ComandaItems.AsNoTracking().FirstAsync(x => x.Id == item.Id);
                     _context.ComandaItems.Remove(comandaItemExcluir);
                 }
             }
@@ -244,7 +264,7 @@ namespace Comandas.Api.Controllers
 
         private async Task<bool> ComandaExiste(int id)
         {
-            return await _context.Comandas.AnyAsync(x => x.Id == id);
+            return await _context.Comandas.AsNoTracking().AnyAsync(x => x.Id == id);
         }
 
         // DELETE api/<ComandasController>/5
