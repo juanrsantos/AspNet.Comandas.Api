@@ -81,18 +81,35 @@ namespace Comandas.Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        public async Task<ActionResult<PagedResponseDto<UsuarioDTO>>> GetUsuarios(int page, int pageSize)
         {
             _logger.LogInformation($"[{nameof(GetUsuarios)}] Iniciando consulta de usuários");
             try
             {
-                var usuarios = await _context.Usuarios.TagWith("GetUsuarios").AsNoTracking().ToListAsync();
-                if(usuarios == null || !usuarios.Any())
+
+                var query =  _context.Usuarios.AsQueryable();
+                var count = await query.CountAsync();
+
+                var usuarios = await query.Skip((page - 1) * pageSize).Take(pageSize)
+
+                    .TagWith("GetUsuarios").AsNoTracking().Select(x => new UsuarioDTO
+                    {
+                        Id = x.Id,
+                        Nome = x.Nome,
+                        Email = x.Email
+                    }).ToListAsync();
+
+
+                if(usuarios == null || count == 0)
                 {
                     return NotFound("Usuários não encontrado");
                 }
+
+                var res = new PagedResponseDto<UsuarioDTO>(usuarios, count, page, pageSize);
+              
+
                 _logger.LogInformation($"[{nameof(GetUsuarios)}] Usuários obtido com sucesso");
-                return Ok(usuarios);
+                return Ok(res);
             }
             catch(DbUpdateException ex)
             {
@@ -187,6 +204,15 @@ namespace Comandas.Api.Controllers
         private bool UsuarioExists(int id)
         {
             return _context.Usuarios.Any(us => us.Id == id);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
+        {
+            _context.Usuarios.Add(usuario);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
         }
     }
 }
