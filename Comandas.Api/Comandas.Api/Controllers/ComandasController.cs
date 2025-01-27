@@ -32,23 +32,33 @@ namespace Comandas.Api.Controllers
         [SwaggerResponse(500, "Internal Server Error")]
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ComandaGetDTO>>> Get()
+        public async Task<ActionResult<PagedResponseDto<ComandaGetDTO>>> GetComandas(CancellationToken cancellationToken, int page, int pageSize)
         {
-            var comandas = await _context.Comandas.AsNoTracking()
-                .Where(x => x.SituacaoComanda == 1).AsNoTracking()
+
+            var query = _context.Comandas.AsQueryable();
+            var count = await query.CountAsync();
+
+            var comandas = await query.Skip((page - 1) * pageSize).Take(pageSize).Take(pageSize)
+                .TagWith("GetComandas").AsNoTracking()
                 .Select(x => new ComandaGetDTO
                 {
                     Id = x.Id,
-                    NomeCliente = x.NomeCliente,
                     NroMesa = x.NumeroMesa,
-                    comandaItems = x.ComandaItems.Select(x => new ComandaItemGetDto
+                    NomeCliente = x.NomeCliente,
+                    comandaItems = x.ComandaItems.Select(u => new ComandaItemGetDto
                     {
-                        Id = x.Id,
-                        Titulo = x.CardapioItem.Titulo,
+                        Id = u.Id,
+                        Titulo = u.CardapioItem.Titulo
                     }).ToList()
                 }).ToListAsync();
-      
-            return Ok(comandas);
+
+            if (comandas == null || count.Equals(0))
+            {
+                return NotFound("comandas não encontrada");
+            }
+
+            var res = new PagedResponseDto<ComandaGetDTO>(comandas, count, page, pageSize);
+            return Ok(res);
         }
 
         // GET api/<ComandasController>/5
@@ -58,10 +68,10 @@ namespace Comandas.Api.Controllers
         [SwaggerResponse(500, "Internal Server Error")]
         [Authorize]
         [HttpGet("{id}")]
-        public async Task <ActionResult<ComandaGetDTO>> Get(int id)
+        public async Task<ActionResult<ComandaGetDTO>> Get(int id)
         {
             var comanda = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-            if(comanda is null)
+            if (comanda is null)
             {
                 return NotFound($"Comanda {id} não encontrada ");
             }
@@ -69,7 +79,7 @@ namespace Comandas.Api.Controllers
             var comandaDTO = new ComandaGetDTO
             {
                 NroMesa = comanda.NumeroMesa,
-                NomeCliente =comanda.NomeCliente,
+                NomeCliente = comanda.NomeCliente,
             };
 
             var comandaItemsDto = await _context.ComandaItems.Include(x => x.CardapioItem)
@@ -95,11 +105,12 @@ namespace Comandas.Api.Controllers
         {
             var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comanda.NumeroMesa);
 
-            if (mesa is null) {
+            if (mesa is null)
+            {
                 return BadRequest("Mesa não encontrada");
             }
 
-            if(mesa.SituacaoMesa != 0)
+            if (mesa.SituacaoMesa != 0)
             {
                 return BadRequest("Mesa ocupada");
             }
@@ -113,7 +124,7 @@ namespace Comandas.Api.Controllers
 
             await _context.Comandas.AddAsync(novaComanda);
 
-            foreach (var item in comanda.CardapioItems) 
+            foreach (var item in comanda.CardapioItems)
             {
                 var novaComandaItem = new ComandaItem
                 {
@@ -124,8 +135,9 @@ namespace Comandas.Api.Controllers
 
                 // Consultar se o cardapio possui preparo
                 var cardapioItem = await _context.CardapioItems.FirstOrDefaultAsync(x => x.Id == item);
-                
-                if (cardapioItem is null) {
+
+                if (cardapioItem is null)
+                {
                     return NotFound($"Cardapio com código {item} não encontrado");
                 }
 
@@ -151,7 +163,7 @@ namespace Comandas.Api.Controllers
             await _context.SaveChangesAsync();
 
             // Devolvendo no cabeçalho da resposta a url de consulta do novo objeto gerado.
-            return CreatedAtAction(nameof(Get), new {id = novaComanda.Id}, comanda);
+            return CreatedAtAction(nameof(Get), new { id = novaComanda.Id }, comanda);
         }
 
         // PUT api/<ComandasController>/5
@@ -164,7 +176,7 @@ namespace Comandas.Api.Controllers
         {
             var comandaUpdate = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
-            if(comandaUpdate is null)
+            if (comandaUpdate is null)
             {
                 return NotFound("Não encontrado");
             }
@@ -173,21 +185,21 @@ namespace Comandas.Api.Controllers
             {
                 comandaUpdate.NomeCliente = comanda.NomeCliente;
             }
-            if (comanda.NumeroMesa > 0) 
+            if (comanda.NumeroMesa > 0)
             {
                 // Verificar disponibilidade da mesa
-                var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x =>x.NumeroMesa == comanda.NumeroMesa);
+                var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comanda.NumeroMesa);
 
-                if(mesa is null)
+                if (mesa is null)
                 {
                     return BadRequest("Mesa invalida");
                 }
-                if(mesa.SituacaoMesa != (int) SituacaoMesaEnum.Disponivel)
+                if (mesa.SituacaoMesa != (int)SituacaoMesaEnum.Disponivel)
                 {
                     return BadRequest("Mesa ocupada");
                 }
                 // Mudar status da mesa para ocupado
-                mesa.SituacaoMesa = (int) SituacaoMesaEnum.Ocupado;
+                mesa.SituacaoMesa = (int)SituacaoMesaEnum.Ocupado;
                 // Mudar o status da mesa antiga para disponivel 
                 var mesaantiga = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comandaUpdate.NumeroMesa);
                 mesaantiga.SituacaoMesa = (int)SituacaoMesaEnum.Disponivel;
@@ -197,7 +209,7 @@ namespace Comandas.Api.Controllers
             }
 
             // percorrer os itens da comanda
-            foreach(var item in comanda.ComandaItems)
+            foreach (var item in comanda.ComandaItems)
             {
                 // verificar se esta incluindo itens 
                 if (item.Incluir)
@@ -211,7 +223,7 @@ namespace Comandas.Api.Controllers
 
                     // Verificar se o cardapio possui preparo
                     var cardapioItem = await _context.CardapioItems.FirstOrDefaultAsync(x => x.Id == item.CardapioItemId);
-                    if(cardapioItem is null)
+                    if (cardapioItem is null)
                     {
                         return BadRequest("Cardapio invalido");
                     }
@@ -220,8 +232,8 @@ namespace Comandas.Api.Controllers
                     {
                         var novoPedidoCozinha = new PedidoCozinha
                         {
-                           Comanda = comandaUpdate,
-                           SituacaoId = 1
+                            Comanda = comandaUpdate,
+                            SituacaoId = 1
                         };
 
                         await _context.PedidoCozinhas.AddAsync(novoPedidoCozinha);
@@ -248,7 +260,7 @@ namespace Comandas.Api.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
             {
                 var existeComanda = await ComandaExiste(id);
                 if (!existeComanda)

@@ -1,8 +1,10 @@
 ﻿using Comandas.Api.Data;
+using Comandas.Api.Dtos;
 using Comandas.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Policy;
@@ -16,10 +18,12 @@ namespace Comandas.Api.Controllers
     public class MesasController : ControllerBase
     {
         private readonly ComandaDbContext _context;
+        private readonly ILogger<MesasController> _logger;
 
-        public MesasController(ComandaDbContext context)
+        public MesasController(ComandaDbContext context, ILogger<MesasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [SwaggerOperation(Summary = "Obtém todas as mesas", Description = "Lista todos as mesas cadastrado")]
@@ -28,22 +32,46 @@ namespace Comandas.Api.Controllers
         [SwaggerResponse(404, "Mesas não encontrada", typeof(string))]
         [SwaggerResponse(500, "Internal Server Error")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Mesa>>> GetMesas(CancellationToken cancellationToken)
+        public async Task<ActionResult<PagedResponseDto<Mesa>>> GetMesas(CancellationToken cancellationToken, int page, int pageSize)
         {
+            _logger.LogInformation($"[{nameof(GetMesas)}] Iniciando consulta de mesas");
             try
             {
-                return await _context.Mesas.AsNoTracking().ToListAsync(cancellationToken);
+                var query = _context.Mesas.AsQueryable();
+                var count = await query.CountAsync();
+
+                var mesas = await query.Skip((page - 1) * pageSize).Take(pageSize)
+                    .TagWith("GetMesas").AsNoTracking().Select(x => new MesaDTO
+                    {
+                        Id = x.Id,
+                        NumeroMesa = x.NumeroMesa,
+                        SituacaoMesa = x.SituacaoMesa
+                    }).ToListAsync(cancellationToken);
+
+
+                if (mesas == null || count == 0)
+                {
+                    return NotFound("Mesas não encontrada");
+                }
+
+                var res = new PagedResponseDto<MesaDTO>(mesas, count, page, pageSize);
+                _logger.LogInformation($"[{nameof(GetMesa)}] Mesas obtida com sucesso");
+                return Ok(res);
+
             }
             catch (ArgumentNullException ex)
             {
+                _logger.LogError(ex, "Erro");
                 return BadRequest(new { message = "Parâmetro inválido fornecido." });
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
+                _logger.LogError(ex, "Erro");
                 return StatusCode(499, new { message = "A operação foi cancelada." });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro");
                 return StatusCode(500, "Ocorreu um erro interno no servidor, tente novamente");
             }
         }
