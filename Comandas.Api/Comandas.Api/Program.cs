@@ -1,5 +1,6 @@
 using Comandas.Api;
 using Comandas.Api.Data;
+using Comandas.Api.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<ComandaDbContext>(options =>
     options.UseSqlServer(conexao).EnableSensitiveDataLogging();
     //options.UseMySql(conexao, ServerVersion.Parse("9.1.0 - MySQL Community Server - GPL"));
 });
+
+builder.Services.AddScoped<MesaRepository>(); // Injenção de dependencia, para usarmos o repositorio no controller , apos separação em camadas.
 // Adicionando suporte a autenticação JWT 
 builder.Services.AddAuthentication(options =>
 {
