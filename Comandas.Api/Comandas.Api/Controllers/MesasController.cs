@@ -1,11 +1,13 @@
 ﻿using Comandas.Api.Data;
 using Comandas.Api.Dtos;
 using Comandas.Api.Models;
+using Comandas.Api.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Policy;
 
@@ -19,11 +21,14 @@ namespace Comandas.Api.Controllers
     {
         private readonly ComandaDbContext _context;
         private readonly ILogger<MesasController> _logger;
+        private readonly IMesaServices _services;
 
-        public MesasController(ComandaDbContext context, ILogger<MesasController> logger)
+
+        public MesasController(ComandaDbContext context, ILogger<MesasController> logger, IMesaServices services)
         {
             _context = context;
             _logger = logger;
+            _services = services;
         }
 
         [SwaggerOperation(Summary = "Obtém todas as mesas", Description = "Lista todos as mesas cadastrado")]
@@ -37,26 +42,15 @@ namespace Comandas.Api.Controllers
             _logger.LogInformation($"[{nameof(GetMesas)}] Iniciando consulta de mesas");
             try
             {
-                var query = _context.Mesas.AsQueryable();
-                var count = await query.CountAsync();
+               
+                var mesas = await _services.GetMesasAsync(cancellationToken, page, pageSize);
 
-                var mesas = await query.Skip((page - 1) * pageSize).Take(pageSize)
-                    .TagWith("GetMesas").AsNoTracking().Select(x => new MesaDTO
-                    {
-                        Id = x.Id,
-                        NumeroMesa = x.NumeroMesa,
-                        SituacaoMesa = x.SituacaoMesa
-                    }).ToListAsync(cancellationToken);
-
-
-                if (mesas == null || count == 0)
+                if (mesas == null || mesas.TotalRegistros == 0)
                 {
                     return NotFound("Mesas não encontrada");
                 }
-
-                var res = new PagedResponseDto<MesaDTO>(mesas, count, page, pageSize);
                 _logger.LogInformation($"[{nameof(GetMesa)}] Mesas obtida com sucesso");
-                return Ok(res);
+                return Ok(mesas);
 
             }
             catch (ArgumentNullException ex)
