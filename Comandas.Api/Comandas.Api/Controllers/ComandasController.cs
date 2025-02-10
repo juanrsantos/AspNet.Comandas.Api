@@ -2,6 +2,7 @@
 using Comandas.Api.Dtos;
 using Comandas.Api.Enums;
 using Comandas.Api.Models;
+using Comandas.Api.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,11 +19,15 @@ namespace Comandas.Api.Controllers
     [Authorize]
     public class ComandasController : ControllerBase
     {
-
         private readonly ComandaDbContext _context;
-        public ComandasController(ComandaDbContext contexto)
+        private readonly IComandasServices  _comandaServices;
+        private readonly ILogger<ComandasController> _logger;
+
+        public ComandasController(IComandasServices applicationComandasService, ILogger<ComandasController> logger, ComandaDbContext context)
         {
-            _context = contexto;
+            _comandaServices = applicationComandasService;
+            _logger = logger;
+            _context = context;
         }
 
         // GET: api/<ComandasController>
@@ -34,31 +39,24 @@ namespace Comandas.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResponseDto<ComandaGetDTO>>> GetComandas(CancellationToken cancellationToken, int page, int pageSize)
         {
-
-            var query = _context.Comandas.AsQueryable();
-            var count = await query.CountAsync();
-
-            var comandas = await query.Skip((page - 1) * pageSize).Take(pageSize).Take(pageSize)
-                .TagWith("GetComandas").AsNoTracking()
-                .Select(x => new ComandaGetDTO
-                {
-                    Id = x.Id,
-                    NroMesa = x.NumeroMesa,
-                    NomeCliente = x.NomeCliente,
-                    comandaItems = x.ComandaItems.Select(u => new ComandaItemGetDto
-                    {
-                        Id = u.Id,
-                        Titulo = u.CardapioItem.Titulo
-                    }).ToList()
-                }).ToListAsync();
-
-            if (comandas == null || count.Equals(0))
+            _logger.LogInformation($"[{nameof(GetComandas)}] Iniciando consulta de comandas");
+            try
             {
-                return NotFound("comandas não encontrada");
-            }
+                var comandas = await _comandaServices.GetComandasAsync(cancellationToken, page, pageSize);
 
-            var res = new PagedResponseDto<ComandaGetDTO>(comandas, count, page, pageSize);
-            return Ok(res);
+                if (comandas == null || comandas.TotalRegistros == 0)
+                {
+                    return NotFound("Mesas não encontrada");
+                }
+                _logger.LogInformation($"[{nameof(GetComandas)}] Comandas obtida com sucesso");
+                return Ok(comandas);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro");
+                return StatusCode(500, "Ocorreu um erro interno no servidor, tente novamente");
+
+            }
         }
 
         // GET api/<ComandasController>/5

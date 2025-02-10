@@ -19,6 +19,8 @@ builder.Services.AddDbContext<ComandaDbContext>(options =>
 
 builder.Services.AddScoped<IMesaRepository, MesaRepository>(); // Injenção de dependencia, para usarmos o repositorio no controller , apos separação em camadas.
 builder.Services.AddScoped<IMesaServices, MesaServices>();
+builder.Services.AddScoped<IComandasRepository, ComandasRepository>();
+builder.Services.AddScoped<IComandasServices, ComandasServices>();
 
 // Adicionando suporte a autenticação JWT 
 builder.Services.AddAuthentication(options =>
