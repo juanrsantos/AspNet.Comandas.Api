@@ -109,6 +109,7 @@ namespace Comandas.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] ComandaUpdateDTO comanda)
         {
+            //var comandaUpdates = await _comandaServices.Get(id);
             var comandaUpdate = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             if (comandaUpdate is null)
