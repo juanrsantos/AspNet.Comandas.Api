@@ -8,5 +8,7 @@ namespace Comandas.Api.Repositories
     {
         Task AddAsync(Comanda novaComanda);
         Task<PagedResponseDto<ComandaGetDTO>> GetComandasAsync(CancellationToken cancellationToken, int page, int pageSize);
+
+        Task<ComandaGetDTO> Get(int id);
     }
 }

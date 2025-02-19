@@ -20,6 +20,32 @@ namespace Comandas.Api.Repositories
             await _context.Comandas.AddAsync(novaComanda);
         }
 
+        public async Task<ComandaGetDTO?> Get(int id)
+        {
+            try
+            {
+                var query = _context.Comandas.AsQueryable();
+                var comanda = await query.TagWith("GetPorId")
+                     .Select(x => new ComandaGetDTO
+                     {
+                         Id = x.Id,
+                         NroMesa = x.NumeroMesa,
+                         NomeCliente = x.NomeCliente,
+                         comandaItems = x.ComandaItems.Select(u => new ComandaItemGetDto
+                         {
+                             Id = u.Id,
+                             Titulo = u.CardapioItem.Titulo
+                         }).ToList()
+                     }).FirstOrDefaultAsync(x => x.Id == id);
+
+                return comanda;
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception("Erro ao consultar", ex);
+            }
+        }
+
         public async Task<PagedResponseDto<ComandaGetDTO>> GetComandasAsync(CancellationToken cancellationToken, int page, int pageSize)
         {
             var query = _context.Comandas.AsQueryable();

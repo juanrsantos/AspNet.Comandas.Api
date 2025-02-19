@@ -30,6 +30,39 @@ namespace Comandas.Api.Services.Implementation
             _mesaServices = mesaServices;
         }
 
+        public async Task<ComandaGetDTO> Get(int id)
+        {
+            try
+            {
+                var comanda = await _comandasRepository.Get(id);
+
+                if (comanda is null)
+                {
+                    throw new BadRequestException($"Comanda {id} não encontrada ");
+                }
+
+                var comandaDTO = new ComandaGetDTO
+                {
+                    Id = comanda.Id,
+                    NroMesa = comanda.NroMesa,
+                    NomeCliente = comanda.NomeCliente,
+                };
+
+
+                var comandaItensDto = await _comandaItemsRepository.GetItensdaComanda(id);
+                comandaDTO.comandaItems = comandaItensDto.ToList();
+                return comandaDTO;
+            }
+            catch (BadRequestException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao obter comanda", ex);
+            }
+        }
+
         public async Task<PagedResponseDto<ComandaGetDTO>> GetComandasAsync(CancellationToken cancellationToken, int page, int pageSize)
         {
             return await _comandasRepository.GetComandasAsync(cancellationToken, page, pageSize);

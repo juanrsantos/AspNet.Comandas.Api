@@ -68,28 +68,9 @@ namespace Comandas.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ComandaGetDTO>> Get(int id)
         {
-            var comanda = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-            if (comanda is null)
-            {
-                return NotFound($"Comanda {id} não encontrada ");
-            }
-
-            var comandaDTO = new ComandaGetDTO
-            {
-                NroMesa = comanda.NumeroMesa,
-                NomeCliente = comanda.NomeCliente,
-            };
-
-            var comandaItemsDto = await _context.ComandaItems.Include(x => x.CardapioItem)
-                .Where(x => x.ComandaId == id)
-                .Select(x => new ComandaItemGetDto
-                {
-                    Id = x.Id,
-                    Titulo = x.CardapioItem.Titulo
-                }).ToListAsync();
-
-            comandaDTO.comandaItems = comandaItemsDto;
-            return Ok(comandaDTO);
+            var comanda = await _comandaServices.Get(id);
+         
+            return Ok(comanda);
         }
 
         // POST api/<ComandasController>

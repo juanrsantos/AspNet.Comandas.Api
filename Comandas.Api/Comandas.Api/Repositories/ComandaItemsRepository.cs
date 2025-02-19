@@ -20,5 +20,17 @@ namespace Comandas.Api.Repositories
             await _context.ComandaItems.AddAsync(novaComandaItem);
         }
 
+        public async Task<IEnumerable<ComandaItemGetDto>> GetItensdaComanda(int id)
+        {
+            var comandaItemsDto = await _context.ComandaItems.Include(x => x.CardapioItem)
+                    .Where(x => x.ComandaId == id)
+                    .Select(x => new ComandaItemGetDto
+                    {
+                        Id = x.Id,
+                        Titulo = x.CardapioItem.Titulo
+                    }).ToListAsync(); 
+
+            return comandaItemsDto;
+        }
     }
 }
