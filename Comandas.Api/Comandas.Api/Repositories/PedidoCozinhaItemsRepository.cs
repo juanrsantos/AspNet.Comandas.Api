@@ -7,17 +7,13 @@ using System.Threading;
 
 namespace Comandas.Api.Repositories
 {
-    public class PedidoCozinhaItemsRepository : IPedidoCozinhaItemsRepository
+    // Construtor implicito , passando o contexto para a classe generica repository.
+    public class PedidoCozinhaItemsRepository (ComandaDbContext comandaDbContext) : Repository(comandaDbContext), IPedidoCozinhaItemsRepository
     {
-        private readonly ComandaDbContext _context;
-        public PedidoCozinhaItemsRepository(ComandaDbContext comandaDbContext)
-        {
-            this._context = comandaDbContext;
-        }
-
+   
         public async Task AddAsync(PedidoCozinhaItem pedidoCozinha)
         {
-            await _context.PedidoCozinhaItems.AddAsync(pedidoCozinha);
+            await comandaDbContext.PedidoCozinhaItems.AddAsync(pedidoCozinha);
         }
 
         public Task AddAsync(PedidoCozinha pedidoCozinha)
@@ -30,11 +26,5 @@ namespace Comandas.Api.Repositories
             throw new NotImplementedException();
         }
 
-
-
-        public async Task SaveChangesAsync(CancellationToken cancellationToken)
-        {
-            await  _context.SaveChangesAsync(cancellationToken);
-        }
     }
 }

@@ -27,12 +27,7 @@ namespace Comandas.Api.Repositories
                 // Verifica se o contexto ainda está aberto
                 if (_context.Database.CanConnect())
                 {
-                    var mesa =  await _context.Mesas.TagWith("GetMesaPorNumero").FirstOrDefaultAsync(x => x.NumeroMesa == numeroMesa);
-
-                    if (mesa == null)
-                    {
-                        throw new BadRequestException($"Mesa não encontrada");
-                    }
+                    var mesa = await _context.Mesas.TagWith("GetMesaPorNumero").FirstOrDefaultAsync(x => x.NumeroMesa == numeroMesa);
                     return mesa;
                 }
                 else
