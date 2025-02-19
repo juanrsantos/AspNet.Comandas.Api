@@ -21,6 +21,13 @@ builder.Services.AddScoped<IMesaRepository, MesaRepository>(); // Injenção de de
 builder.Services.AddScoped<IMesaServices, MesaServices>();
 builder.Services.AddScoped<IComandasRepository, ComandasRepository>();
 builder.Services.AddScoped<IComandasServices, ComandasServices>();
+builder.Services.AddScoped<IPedidoCozinhaRepository, PedidoCozinhaRepository>();
+builder.Services.AddScoped<IPedidoCozinhaItemsRepository, PedidoCozinhaItemsRepository>();
+builder.Services.AddScoped<IPedidoCozinhaItemServices, PedidoCozinhaItemServices>();
+builder.Services.AddScoped<ICardapioItemRepository, CardapioItemRepository>();
+builder.Services.AddScoped<IComandaItemsRepository, ComandaItemsRepository>();
+builder.Services.AddScoped<IPedidoCozinhaServices, PedidoCozinhaServices>();
+
 
 // Adicionando suporte a autenticação JWT 
 builder.Services.AddAuthentication(options =>

@@ -15,6 +15,11 @@ namespace Comandas.Api.Repositories
             this._context = _context;
         }
 
+        public async Task AddAsync(Comanda novaComanda)
+        {
+            await _context.Comandas.AddAsync(novaComanda);
+        }
+
         public async Task<PagedResponseDto<ComandaGetDTO>> GetComandasAsync(CancellationToken cancellationToken, int page, int pageSize)
         {
             var query = _context.Comandas.AsQueryable();

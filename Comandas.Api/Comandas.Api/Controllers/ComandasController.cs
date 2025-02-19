@@ -101,67 +101,23 @@ namespace Comandas.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Comanda>> Post([FromBody] ComandaDTO comanda)
         {
-            var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comanda.NumeroMesa);
-
-            if (mesa is null)
+            try
             {
-                return BadRequest("Mesa não encontrada");
+                var comandaResponse = await _comandaServices.Post(comanda);
+                // Devolvendo no cabeçalho da resposta a url de consulta do novo objeto gerado.
+                return CreatedAtAction(nameof(Get), new { id = comandaResponse.Id }, comanda);
             }
-
-            if (mesa.SituacaoMesa != 0)
+            catch (BadRequestException ex)
             {
-                return BadRequest("Mesa ocupada");
+                // Retornar um erro 400 com a mensagem personaliada
+                return BadRequest(ex.Message);
             }
-
-            mesa.SituacaoMesa = 1;
-            var novaComanda = new Comanda
+            catch (Exception)
             {
-                NumeroMesa = comanda.NumeroMesa,
-                NomeCliente = comanda.NomeCliente
-            };
-
-            await _context.Comandas.AddAsync(novaComanda);
-
-            foreach (var item in comanda.CardapioItems)
-            {
-                var novaComandaItem = new ComandaItem
-                {
-                    Comanda = novaComanda,
-                    CardapioItemId = item
-                };
-                _context.ComandaItems.Add(novaComandaItem);
-
-                // Consultar se o cardapio possui preparo
-                var cardapioItem = await _context.CardapioItems.FirstOrDefaultAsync(x => x.Id == item);
-
-                if (cardapioItem is null)
-                {
-                    return NotFound($"Cardapio com código {item} não encontrado");
-                }
-
-                if (cardapioItem.PossuiPreparo)
-                {
-                    // Se possui preparo criar Pedido de cozinha(Comanda) e Pedido de cozinha item(ComandaItem)
-                    var pedidoCozinha = new PedidoCozinha
-                    {
-                        Comanda = novaComanda,
-                        SituacaoId = 1
-                    };
-                    await _context.PedidoCozinhas.AddAsync(pedidoCozinha);
-
-                    var pedidoCozinhaItem = new PedidoCozinhaItem
-                    {
-                        PedidoCozinha = pedidoCozinha,
-                        ComandaItem = novaComandaItem,
-                    };
-
-                    await _context.PedidoCozinhaItems.AddAsync(pedidoCozinhaItem);
-                }
+                // Em caso de erro inesperado, um erro generico.
+                return StatusCode(500, "Ocorreu um erro interno");
             }
-            await _context.SaveChangesAsync();
-
-            // Devolvendo no cabeçalho da resposta a url de consulta do novo objeto gerado.
-            return CreatedAtAction(nameof(Get), new { id = novaComanda.Id }, comanda);
+       
         }
 
         // PUT api/<ComandasController>/5
