@@ -3,6 +3,7 @@ using Comandas.Api.Dtos;
 using Comandas.Api.Enums;
 using Comandas.Api.Models;
 using Comandas.Api.Services.Implementation;
+using Comandas.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,8 +1,8 @@
 ﻿
-namespace Comandas.Api.Services.Implementation
+namespace Comandas.Shared.Exceptions
 {
     [Serializable]
-    internal class BadRequestException : Exception
+    public class BadRequestException : Exception
     {
         public BadRequestException()
         {

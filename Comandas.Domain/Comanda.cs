@@ -14,5 +14,10 @@ namespace Comandas.Api.Models
         public string NomeCliente { get; set; } = default!;
         public int SituacaoComanda { get; set; } = 1;
         public virtual ICollection<ComandaItem> ComandaItems { get; set; }
+
+        public Comanda criarComanda(int numeroMesa, string nomeCliente)
+        {
+            return new Comanda { NumeroMesa = numeroMesa, NomeCliente = nomeCliente};
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Comandas.Api.Dtos;
+using Comandas.Api.Enums;
 using Comandas.Api.Models;
 using Comandas.Api.Repositories;
+using Comandas.Shared.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Packaging.Core;
@@ -72,20 +74,9 @@ namespace Comandas.Api.Services.Implementation
         {
             try
             {
-                var mesa = await _mesaRepository.GetMesaPorNumeroMesa(comanda.NumeroMesa);
-
-
-                if (mesa is null)
-                {
-                    throw new BadRequestException("Mesa não encontrada");
-                }
-
-                if (mesa.SituacaoMesa != 0)
-                {
-                    throw new BadRequestException("Mesa ocupada");
-                }
-
-                mesa.SituacaoMesa = 1;
+                var mesa = await _mesaRepository.GetMesaPorNumeroMesa(comanda.NumeroMesa) ?? throw new BadRequestException("Mesa não encontrada");
+                mesa.AlterarSituacao((int)SituacaoMesaEnum.Ocupado);
+                // mesa.SituacaoMesa = 1;
                 var novaComanda = new Comanda
                 {
                     NumeroMesa = comanda.NumeroMesa,
