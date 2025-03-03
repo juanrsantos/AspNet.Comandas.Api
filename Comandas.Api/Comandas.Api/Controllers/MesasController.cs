@@ -1,15 +1,10 @@
-﻿using Comandas.Api.Data;
-using Comandas.Api.Dtos;
-using Comandas.Api.Models;
-using Comandas.Api.Services.Implementation;
+﻿using Comandas.Domain;
+using Comandas.Services;
+using Comandas.Shared.Dtos;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Security.Policy;
 
 namespace Comandas.Api.Controllers
 {
@@ -19,14 +14,12 @@ namespace Comandas.Api.Controllers
     [Authorize]
     public class MesasController : ControllerBase
     {
-        private readonly ComandaDbContext _context;
         private readonly ILogger<MesasController> _logger;
         private readonly IMesaServices _services;
 
 
-        public MesasController(ComandaDbContext context, ILogger<MesasController> logger, IMesaServices services)
+        public MesasController( ILogger<MesasController> logger, IMesaServices services)
         {
-            _context = context;
             _logger = logger;
             _services = services;
         }
@@ -80,13 +73,15 @@ namespace Comandas.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Mesa>> GetMesa(int id)
         {
-            var mesa = await _context.Mesas.FindAsync(id);
+            // TODO: Buscar mesas 
+            var mesa = await _services.GetMesa(id);
+            //var mesa = await _context.Mesas.FindAsync(id);
 
             if (mesa is null)
             {
                 return NotFound();
             }
-            return mesa;
+            return Ok(mesa);
           
         }
 
@@ -101,8 +96,8 @@ namespace Comandas.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            _context.Mesas.Add(mesa);
-            await _context.SaveChangesAsync();
+            await _services.AddAsync(mesa);
+            await _services.SaveChangesAsync(null);
             return CreatedAtAction(nameof(GetMesa), new { id = mesa.Id }, mesa);
         }
 
@@ -126,7 +121,7 @@ namespace Comandas.Api.Controllers
             _context.Entry(mesa).State = EntityState.Modified;
             try
             {
-                await _context.SaveChangesAsync();
+                await _services.SaveChangesAsync(null);
             } 
             catch (DbUpdateConcurrencyException)
             {
@@ -153,7 +148,7 @@ namespace Comandas.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMesa(int id)
         {
-            var mesa = await _context.Mesas.FindAsync(id);
+            var mesa = await _services.GetMesa(id);
 
             if (mesa is null)
             {
@@ -161,14 +156,14 @@ namespace Comandas.Api.Controllers
             }
 
             _context.Mesas.Remove(mesa);
-            _context.SaveChanges();
+            await _services.SaveChangesAsync(null);
             return NoContent();
         }
 
 
         private bool MesaExists(int id) 
-        { 
-            return _context.Mesas.Any(mesa => mesa.Id == id);   
+        {
+            return _services.GetMesa(id) != null ? true : false;
         }
     }
 }

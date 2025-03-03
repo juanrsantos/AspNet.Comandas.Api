@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Comandas.Domain\Comandas.Domain.csproj" />
+    <ProjectReference Include="..\Comandas.Shared\Comandas.Shared.csproj" />
+	  <ProjectReference Include="..\Comandas.Data\Comandas.Data.csproj" />
+  </ItemGroup>
+
 </Project>

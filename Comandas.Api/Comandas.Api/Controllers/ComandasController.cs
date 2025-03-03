@@ -1,14 +1,14 @@
-﻿using Comandas.Api.Data;
-using Comandas.Api.Dtos;
-using Comandas.Api.Enums;
+﻿using Comandas.Api.Enums;
 using Comandas.Api.Models;
-using Comandas.Api.Services.Implementation;
+using Comandas.Data;
+using Comandas.Domain;
+using Comandas.Services;
+using Comandas.Shared.Dtos;
 using Comandas.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Runtime.InteropServices;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

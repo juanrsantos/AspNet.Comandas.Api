@@ -4,7 +4,7 @@ using Comandas.Shared.Exceptions;
 using Comandas.Api.Enums;
 
 
-namespace Comandas.Api.Models
+namespace Comandas.Domain
 {
     public class Mesa
     {
