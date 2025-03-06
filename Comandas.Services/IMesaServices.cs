@@ -11,6 +11,10 @@ namespace Comandas.Services
 
         Task AddAsync(Mesa mesa);
 
+        Task UpdateMesaAsync(Mesa mesa);
+
+        Task RemoveMesaAsync(Mesa mesa);
+
         Task SaveChangesAsync(CancellationToken? cancellationToken);
 
     }

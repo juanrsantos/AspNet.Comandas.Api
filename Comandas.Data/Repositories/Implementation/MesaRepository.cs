@@ -1,6 +1,7 @@
-﻿using Comandas.Api.Models;
-using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 using Comandas.Shared.Dtos;
+using Comandas.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Data.Repositories.Implementation
@@ -59,5 +60,46 @@ namespace Comandas.Data.Repositories.Implementation
             return res;
         }
 
+
+
+        public async Task SaveChangesAsync(CancellationToken? cancellationToken)
+        {
+            await _context.SaveChangesAsync();
+    
+        }
+
+        public async Task  UpdateMesaAsync(Mesa mesa)
+        {
+            var existe = await _context.Mesas.AnyAsync(m => m.Id == mesa.Id);
+            if (!existe) throw new Exception("Mesa não encontrada");
+
+            _context.Entry(mesa).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                existe = await _context.Mesas.AnyAsync(m => m.Id == mesa.Id);
+                if (!existe)
+                {
+                    throw new  BadRequestException("Mesa não encontrada");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new BadRequestException("Erro ao acessar ao banco");
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        void IMesaRepository.RemoveMesaAsync(Mesa mesa)
+        {
+            _context.Mesas.Remove(mesa);
+        }
     }
 }

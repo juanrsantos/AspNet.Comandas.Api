@@ -1,9 +1,9 @@
-﻿using Comandas.Api.Models;
+﻿using Comandas.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Data
 {
-    public class ComandaDbContext :DbContext
+    public class ComandaDbContext(DbContextOptions<ComandaDbContext> options) : DbContext(options)
     {
 
         public DbSet<Mesa> Mesas { get; set; }
@@ -13,12 +13,6 @@ namespace Comandas.Data
         public DbSet<PedidoCozinha> PedidoCozinhas { get; set; }
         public DbSet<PedidoCozinhaItem> PedidoCozinhaItems { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
-
-
-        public ComandaDbContext(DbContextOptions<ComandaDbContext> options) : base(options) 
-        {
-            
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

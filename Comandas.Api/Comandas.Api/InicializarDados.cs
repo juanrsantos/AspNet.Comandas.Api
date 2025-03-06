@@ -1,5 +1,4 @@
-﻿using Comandas.Api.Data;
-using Comandas.Api.Models;
+﻿using Comandas.Data;
 
 namespace Comandas.Api
 {
@@ -10,7 +9,7 @@ namespace Comandas.Api
 
             if (!context.Usuarios.Any())
             {
-                context.Usuarios.AddRange(new Models.Usuario
+                context.Usuarios.AddRange(new Comandas.Domain.Usuario
                 {
                     Nome = "Juan",
                     Email = "juan.rodrigues.santos@hotmail.com",
@@ -20,7 +19,7 @@ namespace Comandas.Api
 
             if (!context.Mesas.Any())
             {
-                context.Mesas.AddRange(new Models.Mesa
+                context.Mesas.AddRange(new Comandas.Domain.Mesa
                 {
                     NumeroMesa = 123,
                     SituacaoMesa = 1
@@ -30,7 +29,7 @@ namespace Comandas.Api
 
             if (!context.CardapioItems.Any())
             {
-                context.CardapioItems.AddRange(new Models.CardapioItem
+                context.CardapioItems.AddRange(new Comandas.Domain.CardapioItem
                 {
                  PossuiPreparo = true,
                  Preco = 50,
@@ -41,20 +40,20 @@ namespace Comandas.Api
 
             if (!context.Mesas.Any())
             {
-                context.Mesas.AddRange(new Models.Mesa
+                context.Mesas.AddRange(new Comandas.Domain.Mesa
                 {
                     NumeroMesa = 1,
                     SituacaoMesa = 0
-                }, new Models.Mesa
+                }, new Comandas.Domain.Mesa
                 {
                     NumeroMesa = 2,
                     SituacaoMesa = 0
 
-                }, new Models.Mesa
+                }, new Comandas.Domain.Mesa
                 {
                     NumeroMesa = 3,
                     SituacaoMesa = 1
-                }, new Models.Mesa
+                }, new Comandas.Domain.Mesa
                 {
                     NumeroMesa = 4,
                     SituacaoMesa = 0
@@ -63,7 +62,7 @@ namespace Comandas.Api
 
             if (!context.Comandas.Any())
             {
-                var comanda = new Models.Comanda
+                var comanda = new Comandas.Domain.Comanda
                 {
                     NomeCliente = "Juan Rodrigues",
                     NumeroMesa = 3,
@@ -72,9 +71,9 @@ namespace Comandas.Api
 
                 context.Comandas.Add(comanda);
 
-                ComandaItem[] comandaitems =
+                Comandas.Domain.ComandaItem[] comandaitems =
                 {
-                    new ComandaItem
+                    new Comandas.Domain.ComandaItem
                     {
                         Comanda = comanda,
                         CardapioItemId = 1

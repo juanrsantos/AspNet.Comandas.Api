@@ -1,4 +1,4 @@
-﻿using Comandas.Api.Models;
+﻿using Comandas.Domain;
 
 namespace Comandas.Data.Repositories.Interfaces
 {

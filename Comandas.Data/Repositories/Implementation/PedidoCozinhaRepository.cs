@@ -1,5 +1,5 @@
-﻿using Comandas.Api.Models;
-using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 
 namespace Comandas.Data.Repositories.Implementation
 {
@@ -15,5 +15,6 @@ namespace Comandas.Data.Repositories.Implementation
         {
             await _context.PedidoCozinhas.AddAsync(pedidoCozinha);
         }
+
     }
 }

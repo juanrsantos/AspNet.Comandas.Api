@@ -1,4 +1,4 @@
-﻿using Comandas.Api.Models;
+﻿using Comandas.Domain;
 using Comandas.Shared.Dtos;
 
 namespace Comandas.Services
@@ -10,5 +10,6 @@ namespace Comandas.Services
         Task<ComandaGetDTO> Get(int id);
 
         Task<Comanda> Post(ComandaDTO comanda);
+        Task UpdateComandaAsync(ComandaUpdateDTO comanda);
     }
 }

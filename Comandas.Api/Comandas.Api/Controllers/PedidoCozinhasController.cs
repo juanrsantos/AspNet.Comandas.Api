@@ -1,8 +1,7 @@
-﻿using Comandas.Api.Data;
-using Comandas.Api.Dtos;
-using Comandas.Api.Models;
+﻿using Comandas.Data;
+using Comandas.Domain;
+using Comandas.Shared.Dtos;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;

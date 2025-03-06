@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace Comandas.Api.Models
+namespace Comandas.Domain
 {
     public class ComandaItem
     {

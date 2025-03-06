@@ -1,5 +1,5 @@
-﻿using Comandas.Api.Models;
-using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Data.Repositories.Implementation

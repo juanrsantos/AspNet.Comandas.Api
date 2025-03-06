@@ -1,5 +1,5 @@
-﻿using Comandas.Api.Models;
-using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 using Comandas.Shared.Dtos;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +19,11 @@ namespace Comandas.Data.Repositories.Implementation
             await _context.ComandaItems.AddAsync(novaComandaItem);
         }
 
+        public async Task<ComandaItem> GetComandaItemById(int id)
+        {
+           return await _context.ComandaItems.AsNoTracking().FirstAsync(x => x.Id == id);
+        }
+
         public async Task<IEnumerable<ComandaItemGetDto>> GetItensdaComanda(int id)
         {
             var comandaItemsDto = await _context.ComandaItems.Include(x => x.CardapioItem)
@@ -30,6 +35,12 @@ namespace Comandas.Data.Repositories.Implementation
                     }).ToListAsync(); 
 
             return comandaItemsDto;
+        }
+
+        public void RemoverComandaItemAsync(ComandaItem comandaItenExcluir)
+        {
+
+            _context.Remove(comandaItenExcluir);
         }
     }
 }

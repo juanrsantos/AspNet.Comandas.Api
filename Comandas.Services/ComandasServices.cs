@@ -1,8 +1,9 @@
 ﻿using Comandas.Api.Enums;
-using Comandas.Api.Models;
 using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 using Comandas.Shared.Dtos;
 using Comandas.Shared.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Services
 {
@@ -134,6 +135,109 @@ namespace Comandas.Services
             // CreatedAtAction(nameof(Get), new { id = novaComanda.Id }, comanda);
         }
 
+        public async Task UpdateComandaAsync(ComandaUpdateDTO comanda)
+        {
 
+            var comandaUpdate = await _comandasRepository.GetById(comanda.Id);
+
+            if (comandaUpdate is null)
+            {
+                throw new NotFoundException("Não encontrado");
+            }
+
+            if (!string.IsNullOrEmpty(comanda.NomeCliente))
+            {
+                comandaUpdate.NomeCliente = comanda.NomeCliente;
+            }
+            if (comanda.NumeroMesa > 0)
+            {
+                // Verificar disponibilidade da mesa
+                var mesa = await _mesaRepository.GetMesaPorNumeroMesa(comanda.NumeroMesa);
+
+                if (mesa is null)
+                {
+                    throw new BadRequestException("Mesa invalida");
+                }
+                if (mesa.SituacaoMesa != (int)SituacaoMesaEnum.Disponivel)
+                {
+                    throw new BadRequestException("Mesa ocupada");
+                }
+                // Mudar status da mesa para ocupado
+                mesa.SituacaoMesa = (int)SituacaoMesaEnum.Ocupado;
+                // Mudar o status da mesa antiga para disponivel
+                var mesantiga = await  _mesaRepository.GetMesaPorNumeroMesa(comandaUpdate.NumeroMesa);
+                mesantiga.SituacaoMesa = (int)SituacaoMesaEnum.Disponivel;
+                // Atualizar o numero da mesa comanda
+                comandaUpdate.NumeroMesa = comanda.NumeroMesa;
+
+            }
+
+            // percorrer os itens da comanda
+            foreach (var item in comanda.ComandaItems)
+            {
+                // verificar se esta incluindo itens 
+                if (item.Incluir)
+                {
+                    var novoComandaItem = new ComandaItem
+                    {
+                        Comanda = comandaUpdate,
+                        CardapioItemId = item.CardapioItemId,
+                    };
+                    await _comandaItemsRepository.AddAsync(novoComandaItem);
+                   // await _context.ComandaItems.AddAsync(novoComandaItem);
+
+                    // Verificar se o cardapio possui preparo
+                    //var cardapioItem = await _context.CardapioItems.FirstOrDefaultAsync(x => x.Id == item.CardapioItemId);
+                    var cardapioItem = await _cardapioItemRepository.GetCardapioItemPorId(novoComandaItem.CardapioItemId);
+                    if (cardapioItem is null)
+                    {
+                        throw new BadRequestException("Cardapio invalido");
+                    }
+                    // criar o pedido de cozinha
+                    if (cardapioItem.PossuiPreparo)
+                    {
+                        var novoPedidoCozinha = new PedidoCozinha
+                        {
+                            Comanda = comandaUpdate,
+                            SituacaoId = 1
+                        };
+
+                        //await _context.PedidoCozinhas.AddAsync(novoPedidoCozinha);
+                        await _pedidoCozinhaRepository.AddAsync(novoPedidoCozinha);
+                        // criar o item do pedido de cozinha
+
+                        var novoPedidoCozinhaItem = new PedidoCozinhaItem
+                        {
+                            PedidoCozinha = novoPedidoCozinha,
+                            ComandaItem = novoComandaItem,
+                        };
+                        await _pedidoCozinhaItemRepository.AddAsync(novoPedidoCozinhaItem);
+                    }
+                }
+
+                // verificar se esta excluindo itens 
+                if (item.Excluir)
+                {
+                    //var comandaItemExcluir = await _context.ComandaItems.AsNoTracking().FirstAsync(x => x.Id == item.Id);
+                    var comandaItenExcluir = await _comandaItemsRepository.GetComandaItemById(item.CardapioItemId);
+                    _comandaItemsRepository.RemoverComandaItemAsync(comandaItenExcluir);
+                }
+            }
+
+            try
+            {
+                await _comandasRepository.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var existeComanda = await _comandasRepository.ComandaExiste(comanda.Id);
+                if (!existeComanda)
+                {
+                    throw new NotFoundException("Comanda não encontrada");
+                }
+
+                throw;
+            }
+        }
     }
 }

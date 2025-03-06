@@ -1,22 +1,34 @@
-﻿using Comandas.Api.Models;
-using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 using Comandas.Shared.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace Comandas.Data.Repositories.Implementation
 {
-    public class ComandasRepository : IComandasRepository
+    public class ComandasRepository(ComandaDbContext _context) : Repository(_context), IComandasRepository
     {
-        private readonly ComandaDbContext _context;
-
-        public ComandasRepository(ComandaDbContext _context)
-        {
-            this._context = _context;
-        }
+        private readonly ComandaDbContext _context = _context;
 
         public async Task AddAsync(Comanda novaComanda)
         {
             await _context.Comandas.AddAsync(novaComanda);
+        }
+
+        public async Task<Comanda?> GetById(int id)
+        {
+            try
+            {
+                var query = _context.Comandas.AsQueryable();
+                var comanda = await query.TagWith("GetPorId")
+                    .Include(x => x.ComandaItems)
+                  .FirstOrDefaultAsync(x => x.Id == id);
+
+                return comanda;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao consultar", ex);
+            }
         }
 
         public async Task<ComandaGetDTO?> Get(int id)
@@ -68,5 +80,14 @@ namespace Comandas.Data.Repositories.Implementation
             return res;
         }
 
+        public Task SaveChangesAsync()
+        {
+            return _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ComandaExiste(int id)
+        {
+            return await _context.Comandas.AsNoTracking().AnyAsync(x => x.Id == id);
+        }
     }
 }

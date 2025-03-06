@@ -1,5 +1,4 @@
 ﻿using Comandas.Api.Enums;
-using Comandas.Api.Models;
 using Comandas.Data;
 using Comandas.Domain;
 using Comandas.Services;
@@ -110,111 +109,29 @@ namespace Comandas.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] ComandaUpdateDTO comanda)
         {
-            //var comandaUpdates = await _comandaServices.Get(id);
-            var comandaUpdate = await _context.Comandas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-
-            if (comandaUpdate is null)
-            {
-                return NotFound("Não encontrado");
-            }
-
-            if (!string.IsNullOrEmpty(comanda.NomeCliente))
-            {
-                comandaUpdate.NomeCliente = comanda.NomeCliente;
-            }
-            if (comanda.NumeroMesa > 0)
-            {
-                // Verificar disponibilidade da mesa
-                var mesa = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comanda.NumeroMesa);
-
-                if (mesa is null)
-                {
-                    return BadRequest("Mesa invalida");
-                }
-                if (mesa.SituacaoMesa != (int)SituacaoMesaEnum.Disponivel)
-                {
-                    return BadRequest("Mesa ocupada");
-                }
-                // Mudar status da mesa para ocupado
-                mesa.SituacaoMesa = (int)SituacaoMesaEnum.Ocupado;
-                // Mudar o status da mesa antiga para disponivel 
-                var mesaantiga = await _context.Mesas.AsNoTracking().FirstOrDefaultAsync(x => x.NumeroMesa == comandaUpdate.NumeroMesa);
-                mesaantiga.SituacaoMesa = (int)SituacaoMesaEnum.Disponivel;
-                // Atualizar o numero da mesa comanda
-                comandaUpdate.NumeroMesa = comanda.NumeroMesa;
-
-            }
-
-            // percorrer os itens da comanda
-            foreach (var item in comanda.ComandaItems)
-            {
-                // verificar se esta incluindo itens 
-                if (item.Incluir)
-                {
-                    var novoComandaItem = new ComandaItem
-                    {
-                        Comanda = comandaUpdate,
-                        CardapioItemId = item.CardapioItemId,
-                    };
-                    await _context.ComandaItems.AddAsync(novoComandaItem);
-
-                    // Verificar se o cardapio possui preparo
-                    var cardapioItem = await _context.CardapioItems.FirstOrDefaultAsync(x => x.Id == item.CardapioItemId);
-                    if (cardapioItem is null)
-                    {
-                        return BadRequest("Cardapio invalido");
-                    }
-                    // criar o pedido de cozinha
-                    if (cardapioItem.PossuiPreparo)
-                    {
-                        var novoPedidoCozinha = new PedidoCozinha
-                        {
-                            Comanda = comandaUpdate,
-                            SituacaoId = 1
-                        };
-
-                        await _context.PedidoCozinhas.AddAsync(novoPedidoCozinha);
-                        // criar o item do pedido de cozinha
-
-                        var novoPedidoCozinhaItem = new PedidoCozinhaItem
-                        {
-                            PedidoCozinha = novoPedidoCozinha,
-                            ComandaItem = novoComandaItem,
-                        };
-                        await _context.PedidoCozinhaItems.AddAsync(novoPedidoCozinhaItem);
-                    }
-                }
-
-                // verificar se esta excluindo itens 
-                if (item.Excluir)
-                {
-                    var comandaItemExcluir = await _context.ComandaItems.AsNoTracking().FirstAsync(x => x.Id == item.Id);
-                    _context.ComandaItems.Remove(comandaItemExcluir);
-                }
-            }
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _comandaServices.UpdateComandaAsync(comanda);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (BadRequestException ex)
             {
-                var existeComanda = await ComandaExiste(id);
-                if (!existeComanda)
-                {
-                    return NotFound("Comanda não encontrada");
-                }
-
-                throw;
+                return BadRequest(ex.Message);
             }
-
+            catch (NotFoundException ex) 
+            {
+                return NotFound(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogWarning(ex, ex.Message);
+               return StatusCode(500, "Ocorreu um erro interno");
+            }
+           
             return NoContent(); // 204
         }
 
-        private async Task<bool> ComandaExiste(int id)
-        {
-            return await _context.Comandas.AsNoTracking().AnyAsync(x => x.Id == id);
-        }
+     
 
         // DELETE api/<ComandasController>/5
         [HttpDelete("{id}")]

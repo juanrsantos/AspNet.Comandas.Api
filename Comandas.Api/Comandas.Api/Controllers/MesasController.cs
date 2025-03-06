@@ -118,26 +118,7 @@ namespace Comandas.Api.Controllers
                 return NotFound(new { message = $"Mesa com ID {id} não encontrada." });
             }
 
-            _context.Entry(mesa).State = EntityState.Modified;
-            try
-            {
-                await _services.SaveChangesAsync(null);
-            } 
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MesaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch(Exception ex)
-            {
-                return BadRequest("Ocorreu um erro ao conectar no banco");
-            }
+            await _services.UpdateMesaAsync(mesa);
             return NoContent();
         }
 
@@ -154,8 +135,8 @@ namespace Comandas.Api.Controllers
             {
                 return NotFound();
             }
-
-            _context.Mesas.Remove(mesa);
+            
+            await _services.RemoveMesaAsync(mesa);
             await _services.SaveChangesAsync(null);
             return NoContent();
         }

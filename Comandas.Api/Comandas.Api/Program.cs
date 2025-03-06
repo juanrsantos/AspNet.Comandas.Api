@@ -1,7 +1,9 @@
 using Comandas.Api;
-using Comandas.Api.Data;
-using Comandas.Api.Repositories;
 using Comandas.Api.Services.Implementation;
+using Comandas.Data;
+using Comandas.Data.Repositories.Implementation;
+using Comandas.Data.Repositories.Interfaces;
+using Comandas.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

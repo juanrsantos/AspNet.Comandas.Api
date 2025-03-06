@@ -1,5 +1,5 @@
-﻿using Comandas.Api.Models;
-using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Interfaces;
+using Comandas.Domain;
 
 namespace Comandas.Api.Services.Implementation
 {

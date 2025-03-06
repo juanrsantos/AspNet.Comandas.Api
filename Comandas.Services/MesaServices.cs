@@ -28,6 +28,22 @@ namespace Comandas.Services
             return await _repository.GetMesasAsync(cancellationToken, page, pageSize);
         }
 
+        public async Task RemoveMesaAsync(Mesa mesa)
+        {
+             _repository.RemoveMesaAsync(mesa);
+        }
+
+        public async Task SaveChangesAsync(CancellationToken? cancellationToken)
+        {
+             await _repository.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task UpdateMesaAsync(Mesa mesa)
+        {
+
+            await _repository.UpdateMesaAsync(mesa);
+        }
+
         Task<Mesa> IMesaServices.GetMesa(int id)
         {
             throw new NotImplementedException();
