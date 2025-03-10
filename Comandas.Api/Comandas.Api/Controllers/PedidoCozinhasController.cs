@@ -1,4 +1,5 @@
-﻿using Comandas.Data;
+﻿using Comandas.Api.Services.Implementation;
+using Comandas.Data;
 using Comandas.Domain;
 using Comandas.Shared.Dtos;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +17,13 @@ namespace Comandas.Api.Controllers
     {
         private readonly ComandaDbContext _context;
         private readonly ILogger<PedidoCozinhasController> _logger;
+        private readonly IPedidoCozinhaItemServices _pedidoCozinhaServices;
 
-        public PedidoCozinhasController(ComandaDbContext contexto, ILogger<PedidoCozinhasController> logger)
+        public PedidoCozinhasController(ComandaDbContext contexto, ILogger<PedidoCozinhasController> logger, IPedidoCozinhaItemServices pedidoCozinhaServices)
         {
             _context = contexto;
             _logger = logger;
+            _pedidoCozinhaServices = pedidoCozinhaServices;
         }
 
 
@@ -32,41 +35,23 @@ namespace Comandas.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResponseDto<PedidoCozinhaGetDto>>> GetPedidosAsync([FromQuery] int? situacao, CancellationToken cancelattiontoken, int page, int pageSize)
         {
-
             _logger.LogInformation($"[{nameof(GetPedidosAsync)}] Iniciando consulta de pedidos");
-
-            // Incluir todas as tabelas na consulta
-            var query = _context.PedidoCozinhas.AsNoTracking()
-                        .Include(x => x.Comanda)
-                        .Include(x => x.PedidoCozinhaItems)
-                            .ThenInclude(x => x.ComandaItem)
-                                .ThenInclude(x => x.CardapioItem)
-                                .AsQueryable();
-
-            var count = await query.CountAsync();
-
-
-            var pedidoCozinhas = await query.Skip((page - 1) * pageSize).Take(pageSize)
-                .TagWith("GetPedidos").AsNoTracking().Select(x => new PedidoCozinhaGetDto
-                {
-                    Id = x.Id,
-                    NomeCliente = x.Comanda.NomeCliente,
-                    NumeroMesa = x.Comanda.NumeroMesa,
-                    Titulo = x.PedidoCozinhaItems.First().ComandaItem.CardapioItem.Titulo,
-                }).ToListAsync(cancelattiontoken);
-
-
-            // Adicionar o filtro where se a situação informada
-            if (situacao > 0)
+            try
             {
-                query = query.Where(x => x.SituacaoId == situacao);
+                var pedidosCozinha = _pedidoCozinhaServices.GetPedidoCozinhaItemsAsync(cancelattiontoken, page, pageSize, situacao);
+
+                if(pedidosCozinha == null)
+                {
+                    return NotFound("Pedido Cozinha não encontrado");
+                }
+                return Ok(pedidosCozinha);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("[{1},{2}] Iniciando consulta de pedidos", nameof(GetPedidosAsync), ex.Message);
+                return StatusCode(500, "Ocorreu um erro interno");
             }
 
-
-            var res = new PagedResponseDto<PedidoCozinhaGetDto>(pedidoCozinhas, count, page, pageSize);
-            // Executar a consulta do banco e retornar o DTO
-            return Ok(res);
-                
         }
         
 

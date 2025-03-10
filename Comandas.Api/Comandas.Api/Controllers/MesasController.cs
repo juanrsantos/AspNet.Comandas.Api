@@ -1,6 +1,7 @@
 ﻿using Comandas.Domain;
 using Comandas.Services;
 using Comandas.Shared.Dtos;
+using Comandas.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -74,7 +75,7 @@ namespace Comandas.Api.Controllers
         public async Task<ActionResult<Mesa>> GetMesa(int id)
         {
             // TODO: Buscar mesas 
-            var mesa = await _services.GetMesa(id);
+            var mesa = await _services.GetMesaAsync(id);
             //var mesa = await _context.Mesas.FindAsync(id);
 
             if (mesa is null)
@@ -129,22 +130,21 @@ namespace Comandas.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMesa(int id)
         {
-            var mesa = await _services.GetMesa(id);
-
-            if (mesa is null)
+            try
             {
-                return NotFound();
+                await _services.RemoveMesaAsync(id);
+                return NoContent();
             }
-            
-            await _services.RemoveMesaAsync(mesa);
-            await _services.SaveChangesAsync(null);
-            return NoContent();
+            catch (NotFoundException ex) 
+            {
+                return NotFound(ex.Message);
+            } 
         }
 
 
         private bool MesaExists(int id) 
         {
-            return _services.GetMesa(id) != null ? true : false;
+            return _services.GetMesaAsync(id) != null ? true : false;
         }
     }
 }

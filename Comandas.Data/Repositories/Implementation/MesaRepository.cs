@@ -16,9 +16,23 @@ namespace Comandas.Data.Repositories.Implementation
    
         }
 
-        public Task<MesaDTO> GetMesa(int id)
+        public async Task<MesaDTO> GetMesa(int id)
         {
-            throw new NotImplementedException();
+            var mesa = await _context.Mesas.Where(x => x.Id == id).Select(x => new MesaDTO
+            {
+                Id = x.Id,
+                NumeroMesa = x.NumeroMesa,
+                SituacaoMesa = x.SituacaoMesa
+            }).AsNoTracking().FirstOrDefaultAsync();
+
+
+            return mesa;
+        }
+
+        public async Task<Mesa> GetMesaById(int id)
+        {
+            var mesa = await _context.Mesas.FindAsync(id);
+            return mesa;
         }
 
         public async Task<Mesa?> GetMesaPorNumeroMesa(int numeroMesa)
@@ -97,9 +111,15 @@ namespace Comandas.Data.Repositories.Implementation
             await _context.SaveChangesAsync();
         }
 
-        void IMesaRepository.RemoveMesaAsync(Mesa mesa)
+        public async Task RemoveMesaAsync(Mesa mesa)
         {
             _context.Mesas.Remove(mesa);
+           await  _context.SaveChangesAsync();
+        }
+
+        public async Task AddAsync(Mesa mesa)
+        {
+           await  _context.Mesas.AddAsync(mesa);
         }
     }
 }

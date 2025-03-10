@@ -15,6 +15,8 @@ namespace Comandas.Data.Repositories.Interfaces
 
         Task SaveChangesAsync(CancellationToken? cancellationToken);
 
-        void RemoveMesaAsync(Mesa mesa);
+        Task RemoveMesaAsync(Mesa mesa);
+        Task<Mesa> GetMesaById(int id);
+        Task AddAsync(Mesa mesa);
     }
 }

@@ -7,13 +7,13 @@ namespace Comandas.Services
     {
         Task<PagedResponseDto<MesaDTO>> GetMesasAsync(CancellationToken cancellationToken, int page, int pageSize);
 
-        Task<Mesa> GetMesa(int id);
+        Task<MesaDTO> GetMesaAsync(int id);
 
         Task AddAsync(Mesa mesa);
 
         Task UpdateMesaAsync(Mesa mesa);
 
-        Task RemoveMesaAsync(Mesa mesa);
+        Task RemoveMesaAsync(int id);
 
         Task SaveChangesAsync(CancellationToken? cancellationToken);
 

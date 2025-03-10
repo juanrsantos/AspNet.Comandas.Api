@@ -9,7 +9,7 @@ namespace Comandas.Api.Controllers
     [Tags("05. Cardapio Itens")]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+//  [Authorize]
     public class CardapioItensController : ControllerBase
     {
         private readonly ComandaDbContext _context;

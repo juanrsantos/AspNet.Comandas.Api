@@ -18,9 +18,9 @@ namespace Comandas.Api.Services.Implementation
           await _repository.AddAsync(novoPedidoCozinhaItem);
         }
 
-        public async Task<PagedResponseDto<PedidoCozinhaGetDto>> GetPedidoCozinhaItemsAsync(CancellationToken cancellationToken, int page, int pageSize)
+        public async Task<PagedResponseDto<PedidoCozinhaGetDto>> GetPedidoCozinhaItemsAsync(CancellationToken cancellationToken, int page, int pageSize, int? situacao)
         {
-            return await _repository.GetPedidoCozinhaItemsAsync(cancellationToken, page, pageSize);
+            return await _repository.GetPedidoCozinhaItemsAsync(cancellationToken, page, pageSize, situacao);
         }
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)

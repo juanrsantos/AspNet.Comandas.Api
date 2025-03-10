@@ -1,6 +1,27 @@
-@Comandas.Api_HostAddress = http://localhost:5254
+@Comandas.Api_HostAddress = https://localhost:32775
 
-GET {{Comandas.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Autenticação (Login)
+POST {{Comandas.Api_HostAddress}}/api/Usuarios/login
+Content-Type: application/json
+{
+  "email": "juan.rodrigues.santos@hotmail.com",
+  "senha": "123456"
+}
+
+###
+
+
+GET {{Comandas.Api_HostAddress}}/api/cardapioitens
+Authorizathion: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Imp1YW4ucm9kcmlndWVzLnNhbnRvc0Bob3RtYWlsLmNvbSIsIm5hbWVpZCI6IjEiLCJuYmYiOjE3NDE2NDA0OTUsImV4cCI6MTc0MTY0MTA5NSwiaWF0IjoxNzQxNjQwNDk1fQ.C9isdZcS6VD4BgVgN8oeM8oz5kX88FQZe_TvdHFNvRk
+@page=0
+@pageSize=0
+
+
+###
+
+
+@id=2
+GET {{Comandas.Api_HostAddress}}/api/mesas/{{id}}
+Authorizathion: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Imp1YW4ucm9kcmlndWVzLnNhbnRvc0Bob3RtYWlsLmNvbSIsIm5hbWVpZCI6IjEiLCJuYmYiOjE3NDE2NDA0OTUsImV4cCI6MTc0MTY0MTA5NSwiaWF0IjoxNzQxNjQwNDk1fQ.C9isdZcS6VD4BgVgN8oeM8oz5kX88FQZe_TvdHFNvRk
 
 ###

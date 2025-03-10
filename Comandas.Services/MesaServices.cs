@@ -1,6 +1,7 @@
 ﻿using Comandas.Data.Repositories.Interfaces;
 using Comandas.Domain;
 using Comandas.Shared.Dtos;
+using Comandas.Shared.Exceptions;
 
 namespace Comandas.Services
 {
@@ -13,14 +14,14 @@ namespace Comandas.Services
             _repository = mesaRepository;
         }
 
-        public Task AddAsync(Mesa mesa)
+        public async Task AddAsync(Mesa mesa)
         {
-            throw new NotImplementedException();
+            await _repository.AddAsync(mesa);
         }
 
-        public Task<MesaDTO> GetMesa(int id)
+        public async Task<MesaDTO> GetMesaAsync(int id)
         {
-           return _repository.GetMesa(id);
+           return await _repository.GetMesa(id);
         }
 
         public async Task<PagedResponseDto<MesaDTO>> GetMesasAsync(CancellationToken cancellationToken, int page, int pageSize)
@@ -28,9 +29,17 @@ namespace Comandas.Services
             return await _repository.GetMesasAsync(cancellationToken, page, pageSize);
         }
 
-        public async Task RemoveMesaAsync(Mesa mesa)
+        public async Task RemoveMesaAsync(int id)
         {
-             _repository.RemoveMesaAsync(mesa);
+          
+            Mesa mesa =await  _repository.GetMesaById(id);
+
+            if (mesa is null)
+            {
+                throw new NotFoundException("Mesa não encontrada");
+            }
+
+           await _repository.RemoveMesaAsync(mesa);
         }
 
         public async Task SaveChangesAsync(CancellationToken? cancellationToken)
@@ -44,9 +53,5 @@ namespace Comandas.Services
             await _repository.UpdateMesaAsync(mesa);
         }
 
-        Task<Mesa> IMesaServices.GetMesa(int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
