@@ -1,5 +1,5 @@
 ﻿using Comandas.Domain;
-using Comandas.Services;
+using Comandas.Services.Interfaces;
 using Comandas.Shared.Dtos;
 using Comandas.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;

@@ -4,6 +4,7 @@ using Comandas.Data;
 using Comandas.Data.Repositories.Implementation;
 using Comandas.Data.Repositories.Interfaces;
 using Comandas.Services;
+using Comandas.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IPedidoCozinhaItemServices, PedidoCozinhaItemServices
 builder.Services.AddScoped<ICardapioItemRepository, CardapioItemRepository>();
 builder.Services.AddScoped<IComandaItemsRepository, ComandaItemsRepository>();
 builder.Services.AddScoped<IPedidoCozinhaServices, PedidoCozinhaServices>();
+builder.Services.AddScoped<IUsuarioServices, UsuarioServices>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 
 // Adicionando suporte a autenticação JWT 

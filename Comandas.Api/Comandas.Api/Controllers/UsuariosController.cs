@@ -1,12 +1,16 @@
 ﻿using Comandas.Data;
 using Comandas.Domain;
+using Comandas.Services.Interfaces;
 using Comandas.Shared.Dtos;
+using Comandas.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -18,12 +22,15 @@ namespace Comandas.Api.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly ComandaDbContext _context;
+        private readonly IUsuarioServices _usuarioServices;
+
         private readonly ILogger<UsuariosController> _logger;
 
-        public UsuariosController(ComandaDbContext context, ILogger<UsuariosController> logger)
+        public UsuariosController(ComandaDbContext context, ILogger<UsuariosController> logger, IUsuarioServices usuarioServices)
         {
             _context = context;
             _logger = logger;
+            _usuarioServices = usuarioServices;
         }
         /// <summary>
         /// Realiza o login da aplicação
@@ -35,44 +42,30 @@ namespace Comandas.Api.Controllers
         [SwaggerResponse(404, "usuário não encontrado", typeof(string))]
         [SwaggerResponse(400, "Usuário/Senha invalida", typeof(string))]
         [HttpPost("login")]
-        public async Task<ActionResult<UsuarioResponse>> Login([FromBody] UsuarioRequest usuarioRequest)
+        public async Task<ActionResult<UsuarioResponse>> Login([FromBody] UsuarioRequest usuarioRequest, CancellationToken cancellationToken)
         {
-            var tokengerador = new JwtSecurityTokenHandler();
-            var chave = Encoding.UTF8.GetBytes("3e8acfc238f45a314fd4b2bde272678ad30bd1774743a11dbc5c53ac71ca494b");
-            // Consultar usuario no banco 
-            // TagWith colocar um cabeçalho no log de saida do sql.
-            // AsNoTracking serve para não rastrear modificações na tabela, tornando a consulta mais leve. 
-            var usuario = await _context.Usuarios.TagWith("Login").AsNoTracking().FirstOrDefaultAsync(x => x.Email == usuarioRequest.Email);
-
-            if (usuario == null)
+            try
             {
-                return NotFound("Usuário não encontrado");
+                var login = await _usuarioServices.Login(usuarioRequest, cancellationToken);
+                return Ok(login);
             }
-
-            if (!usuario.Senha.Equals(usuarioRequest.Senha))
+            catch (NotFoundException ex) 
             {
-                return BadRequest("Usuário/Senha invalida");
+                _logger.LogError("Usuario não encontrado", ex.Message);
+                return NotFound(ex.Message);
             }
-
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            catch(BadRequestException ex)
             {
-                Expires = DateTime.UtcNow.AddMinutes(10),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chave), SecurityAlgorithms.HmacSha256Signature),
-                Subject = new System.Security.Claims.ClaimsIdentity(
-                    new Claim[]
-                    {
-                        new Claim(ClaimTypes.Name, usuario.Email),
-                        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString())
-                    }
-                    )
-            };
-
-            var token = tokengerador.CreateToken(tokenDescriptor);
-            var tokenfinal = tokengerador.WriteToken(token);
-
-            return Ok(new UsuarioResponse { Nome = usuario.Nome , Token= tokenfinal });
+                _logger.LogError("Erro");
+                return BadRequest(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode((int) HttpStatusCode.InternalServerError, "Erro generico");
+            }
         }
+
         [SwaggerOperation(Summary ="Obtém todos usuários", Description ="Lista todos os usuários cadastrados")]
         [SwaggerResponse(200, "retorna a lista de usuários", typeof(IEnumerable<Usuario>))]
         [SwaggerResponse(401, "Acesso não autorizado", typeof(string))]

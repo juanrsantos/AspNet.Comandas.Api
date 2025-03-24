@@ -1,4 +1,4 @@
-@Comandas.Api_HostAddress = https://localhost:32775
+@Comandas.Api_HostAddress = https://localhost:32771
 
 ### Autenticação (Login)
 POST {{Comandas.Api_HostAddress}}/api/Usuarios/login
@@ -10,18 +10,140 @@ Content-Type: application/json
 
 ###
 
+### Cardapio Itens
 
 GET {{Comandas.Api_HostAddress}}/api/cardapioitens
-Authorizathion: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Imp1YW4ucm9kcmlndWVzLnNhbnRvc0Bob3RtYWlsLmNvbSIsIm5hbWVpZCI6IjEiLCJuYmYiOjE3NDE2NDA0OTUsImV4cCI6MTc0MTY0MTA5NSwiaWF0IjoxNzQxNjQwNDk1fQ.C9isdZcS6VD4BgVgN8oeM8oz5kX88FQZe_TvdHFNvRk
-@page=0
-@pageSize=0
+Authorizathion: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Imp1YW4ucm9kcmlndWVzLnNhbnRvc0Bob3RtYWlsLmNvbSIsIm5hbWVpZCI6IjEiLCJuYmYiOjE3NDIyNDQ4NDYsImV4cCI6MTc0MjI0NTQ0NiwiaWF0IjoxNzQyMjQ0ODQ2fQ.B_v6Wl6bYioxDBKCXtYF_zXRtrUn_rgewGJtL-zB65c
 
 
 ###
 
 
-@id=2
+
+POST {{Comandas.Api_HostAddress}}/api/cardapioitens
+Content-Type: application/json
+
+{
+  //CardapioItem
+}
+
+###
+
+@id=0
+GET {{Comandas.Api_HostAddress}}/api/cardapioitens/{{id}}
+
+###
+
+PUT {{Comandas.Api_HostAddress}}/api/cardapioitens/{{id}}
+Content-Type: application/json
+
+{
+  //CardapioItem
+}
+
+###
+
+@page=0
+@pageSize=0
+GET {{Comandas.Api_HostAddress}}/api/comandas?page={{page}}&pageSize={{pageSize}}
+
+###
+
+POST {{Comandas.Api_HostAddress}}/api/comandas
+Content-Type: application/json
+
+{
+  //ComandaDTO
+}
+
+###
+
+DELETE {{Comandas.Api_HostAddress}}/api/comandas/{{id}}
+
+###
+
+GET {{Comandas.Api_HostAddress}}/api/comandas/{{id}}
+
+###
+
+PUT {{Comandas.Api_HostAddress}}/api/comandas/{{id}}
+Content-Type: application/json
+
+{
+  //ComandaUpdateDTO
+}
+
+###
+
+GET {{Comandas.Api_HostAddress}}/api/mesas?page={{page}}&pageSize={{pageSize}}
+
+###
+
+POST {{Comandas.Api_HostAddress}}/api/mesas
+Content-Type: application/json
+
+{
+  //Mesa
+}
+
+###
+
+DELETE {{Comandas.Api_HostAddress}}/api/mesas/{{id}}
+
+###
+
 GET {{Comandas.Api_HostAddress}}/api/mesas/{{id}}
-Authorizathion: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Imp1YW4ucm9kcmlndWVzLnNhbnRvc0Bob3RtYWlsLmNvbSIsIm5hbWVpZCI6IjEiLCJuYmYiOjE3NDE2NDA0OTUsImV4cCI6MTc0MTY0MTA5NSwiaWF0IjoxNzQxNjQwNDk1fQ.C9isdZcS6VD4BgVgN8oeM8oz5kX88FQZe_TvdHFNvRk
+
+###
+
+PUT {{Comandas.Api_HostAddress}}/api/mesas/{{id}}
+Content-Type: application/json
+
+{
+  //Mesa
+}
+
+###
+
+GET {{Comandas.Api_HostAddress}}/api/pedidocozinhas?page={{page}}&pageSize={{pageSize}}
+
+###
+
+PUT {{Comandas.Api_HostAddress}}/api/pedidocozinhas/{{id}}
+Content-Type: application/json
+
+0
+
+###
+
+GET {{Comandas.Api_HostAddress}}/api/usuarios?page={{page}}&pageSize={{pageSize}}
+
+###
+
+POST {{Comandas.Api_HostAddress}}/api/usuarios
+Content-Type: application/json
+
+{
+  //Usuario
+}
+
+###
+
+
+
+DELETE {{Comandas.Api_HostAddress}}/api/usuarios/{{id}}
+
+###
+
+GET {{Comandas.Api_HostAddress}}/api/usuarios/{{id}}
+
+###
+
+PUT {{Comandas.Api_HostAddress}}/api/usuarios/{{id}}
+Content-Type: application/json
+
+{
+  //Usuario
+}
 
 ###

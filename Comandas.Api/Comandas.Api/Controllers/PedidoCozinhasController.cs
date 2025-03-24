@@ -1,6 +1,6 @@
-﻿using Comandas.Api.Services.Implementation;
-using Comandas.Data;
+﻿using Comandas.Data;
 using Comandas.Domain;
+using Comandas.Services.Interfaces;
 using Comandas.Shared.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,7 @@
 ﻿using Comandas.Domain;
 using Comandas.Shared.Dtos;
 
-namespace Comandas.Services
+namespace Comandas.Services.Interfaces
 {
     public interface IComandasServices
     {

@@ -1,6 +1,6 @@
 ﻿using Comandas.Domain;
 
-namespace Comandas.Api.Services.Implementation
+namespace Comandas.Services.Interfaces
 {
     public interface IPedidoCozinhaServices
     {

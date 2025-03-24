@@ -1,7 +1,7 @@
 ﻿using Comandas.Domain;
 using Comandas.Shared.Dtos;
 
-namespace Comandas.Api.Services.Implementation
+namespace Comandas.Services.Interfaces
 {
     public interface IPedidoCozinhaItemServices
     {
