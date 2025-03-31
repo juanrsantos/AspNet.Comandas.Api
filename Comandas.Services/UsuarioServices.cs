@@ -1,4 +1,5 @@
-﻿using Comandas.Data.Repositories.Interfaces;
+﻿using Comandas.Data.Repositories.Implementation;
+using Comandas.Data.Repositories.Interfaces;
 using Comandas.Services.Interfaces;
 using Comandas.Shared.Dtos;
 using Comandas.Shared.Exceptions;
@@ -21,6 +22,11 @@ namespace Comandas.Services
         public UsuarioServices(IUsuarioRepository usuarioRepository)
         {
             _usuarioRepository = usuarioRepository;
+        }
+
+        public async Task<PagedResponseDto<UsuarioDTO>> GetUsuariosAsync(int page, int pageSize, CancellationToken cancellationToken)
+        {
+            return await _usuarioRepository.GetUsuariosAsync(page, pageSize, cancellationToken);
         }
 
         public async Task<UsuarioResponse> Login(UsuarioRequest usuarioRequest, CancellationToken cancellationToken)

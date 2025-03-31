@@ -50,7 +50,6 @@ namespace Comandas.Services
 
         public async Task UpdateMesaAsync(Mesa mesa)
         {
-
             await _repository.UpdateMesaAsync(mesa);
         }
 

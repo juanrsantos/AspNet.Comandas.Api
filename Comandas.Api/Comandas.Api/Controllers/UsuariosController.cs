@@ -74,9 +74,37 @@ namespace Comandas.Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<PagedResponseDto<UsuarioDTO>>> GetUsuarios(int page, int pageSize)
+        public async Task<ActionResult<PagedResponseDto<UsuarioDTO>>> GetUsuarios(int page, int pageSize, CancellationToken cancellationToken)
         {
+
+            try
+            {
+                _logger.LogInformation($"[{nameof(GetUsuarios)}] Iniciando consulta de usuários");
+                var usuario = await _usuarioServices.GetUsuariosAsync(page, pageSize, cancellationToken);
+                return usuario;
+
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogError("Usuario não encontrado", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                _logger.LogError("Erro");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Erro generico");
+            }
+
+
+
+
             _logger.LogInformation($"[{nameof(GetUsuarios)}] Iniciando consulta de usuários");
+
             try
             {
 
