@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +33,11 @@ builder.Services.AddScoped<IComandaItemsRepository, ComandaItemsRepository>();
 builder.Services.AddScoped<IPedidoCozinhaServices, PedidoCozinhaServices>();
 builder.Services.AddScoped<IUsuarioServices, UsuarioServices>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IRedisRepository, RedisRepository>();
 
+// CONEXÃO REDIS
+var multiplexer = ConnectionMultiplexer.Connect("redis:6379");
+builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
 // Adicionando suporte a autenticação JWT 
 builder.Services.AddAuthentication(options =>

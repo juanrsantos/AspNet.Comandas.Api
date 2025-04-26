@@ -52,9 +52,28 @@ services:
       - sqlserver
     networks:
       - comanda
+  redis:
+    image: redis:latest
+    ports:
+     - "6379:6379" 
+    networks:
+     - comanda
+    volumes:
+     - redis_data:/data
+  redis-commander:
+     image: rediscommander/redis-commander:latest
+     environment:
+      - REDIS_HOSTS=local:redis:6379
+     ports:
+      - "8081:8081"
+     depends_on:
+      - redis
+     networks:
+      - comanda
 volumes:
   comandas_db_data:
   sql_db_data:
+  redis_data:
 networks:
   comanda: 
 

@@ -13,11 +13,13 @@ namespace Comandas.Tests
     {
         private readonly Mock<IMesaRepository> _mockRepository;
         private readonly MesaServices _mesaServices;
+        private readonly Mock<IRedisRepository> _redisRepository;
 
         public MesaServicesTest()
         {
             _mockRepository = new Mock<IMesaRepository>();
-            _mesaServices = new MesaServices(_mockRepository.Object);
+            _redisRepository = new Mock<IRedisRepository>();
+            _mesaServices = new MesaServices(_mockRepository.Object, _redisRepository.Object);
         }
 
         [Fact]
