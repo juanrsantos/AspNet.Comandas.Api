@@ -39,6 +39,13 @@ builder.Services.AddScoped<IRedisRepository, RedisRepository>();
 var multiplexer = ConnectionMultiplexer.Connect("redis:6379");
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
+// CONFIGURAÇÃO DO PULSAR (MENSAGERIA)
+builder.Services.AddScoped<IPulsarProduceService, PulsarProduceService>();
+
+// ADICIONA O SERVIÇO DE BACKGROUND
+builder.Services.AddHostedService<PulsarConsumer>();
+
+
 // Adicionando suporte a autenticação JWT 
 builder.Services.AddAuthentication(options =>
 {

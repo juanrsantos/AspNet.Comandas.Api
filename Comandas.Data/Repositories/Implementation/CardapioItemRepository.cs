@@ -109,6 +109,9 @@ namespace Comandas.Data.Repositories.Implementation
             }
         }
 
-   
+        Task<CardapioItemDTO> ICardapioItemRepository.AddCardapioItemAsync(CardapioItem cardapioitem)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

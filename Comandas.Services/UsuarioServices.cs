@@ -18,10 +18,12 @@ namespace Comandas.Services
     public class UsuarioServices : IUsuarioServices
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IPulsarProduceService _pusarProduceService;
 
-        public UsuarioServices(IUsuarioRepository usuarioRepository)
+        public UsuarioServices(IUsuarioRepository usuarioRepository, IPulsarProduceService pusarProduceService)
         {
             _usuarioRepository = usuarioRepository;
+            _pusarProduceService = pusarProduceService;
         }
 
         public async Task<PagedResponseDto<UsuarioDTO>> GetUsuariosAsync(int page, int pageSize, CancellationToken cancellationToken)
@@ -31,8 +33,6 @@ namespace Comandas.Services
 
         public async Task<UsuarioResponse> Login(UsuarioRequest usuarioRequest, CancellationToken cancellationToken)
         {
-
-
             var tokengerador = new JwtSecurityTokenHandler();
             var chave = Encoding.UTF8.GetBytes("3e8acfc238f45a314fd4b2bde272678ad30bd1774743a11dbc5c53ac71ca494b");
 
@@ -64,6 +64,13 @@ namespace Comandas.Services
 
             var token = tokengerador.CreateToken(tokenDescriptor);
             var tokenfinal = tokengerador.WriteToken(token);
+
+            await _pusarProduceService.EnviarMensagemAsync(new EventoUsuario
+            {
+                Acao = "Login",
+                Assunto = "Logado com sucesso",
+                Email = usuario.Email
+            });
 
             return new UsuarioResponse { Nome = usuario.Nome, Token = tokenfinal };
         }

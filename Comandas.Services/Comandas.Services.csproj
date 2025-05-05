@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotPulsar" Version="4.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Comandas.Domain\Comandas.Domain.csproj" />
     <ProjectReference Include="..\Comandas.Shared\Comandas.Shared.csproj" />
 	  <ProjectReference Include="..\Comandas.Data\Comandas.Data.csproj" />

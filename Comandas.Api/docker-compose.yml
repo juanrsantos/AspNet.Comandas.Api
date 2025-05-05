@@ -6,6 +6,7 @@ services:
       dockerfile: Comandas.Api/Dockerfile
     networks: 
       - comanda
+      - comanda_shared
   mysql:
     image: mysql:latest
     environment: 
@@ -70,10 +71,23 @@ services:
       - redis
      networks:
       - comanda
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    command: >
+      bin/pulsar standalone
+    ports:
+      - "6650:6650"
+      - "8082:8082"
+    networks:
+      - comanda
+      - comanda_shared
 volumes:
   comandas_db_data:
   sql_db_data:
   redis_data:
 networks:
   comanda: 
+  comanda_shared:
+   external: true
+  
 
