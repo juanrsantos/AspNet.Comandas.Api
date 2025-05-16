@@ -5,6 +5,8 @@ using Comandas.Data.Repositories.Implementation;
 using Comandas.Data.Repositories.Interfaces;
 using Comandas.Services;
 using Comandas.Services.Interfaces;
+using DotPulsar;
+using DotPulsar.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -42,7 +44,12 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 // CONFIGURAÇÃO DO PULSAR (MENSAGERIA)
 builder.Services.AddScoped<IPulsarProduceService, PulsarProduceService>();
 
-// ADICIONA O SERVIÇO DE BACKGROUND
+builder.Services.AddSingleton<IPulsarClient>(x =>
+{
+    return PulsarClient.Builder().ServiceUrl(new Uri("pulsar://pulsar:6650")).Build();
+});
+
+// ADICIONA O SERVIÇO DE BACKGROUND, QUE FICA ESCUTANDO MENSAGEMS NA FILA.
 builder.Services.AddHostedService<PulsarConsumer>();
 
 
