@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="DotPulsar" Version="4.2.3" />
+    <PackageReference Include="MailKit" Version="4.12.1" />
+    <PackageReference Include="MimeKit" Version="4.12.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -36,6 +36,7 @@ builder.Services.AddScoped<IPedidoCozinhaServices, PedidoCozinhaServices>();
 builder.Services.AddScoped<IUsuarioServices, UsuarioServices>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IRedisRepository, RedisRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // CONEXÃO REDIS
 var multiplexer = ConnectionMultiplexer.Connect("redis:6379");
