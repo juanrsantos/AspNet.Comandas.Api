@@ -30,7 +30,7 @@ namespace Comandas.Services
                 using (var mensagemEmail = new MailMessage())
                 {
                     mensagemEmail.From = new MailAddress(emailOrigem);
-                    mensagemEmail.To.Add(new MailAddress(emailOrigem));
+                    mensagemEmail.To.Add(new MailAddress(endereco));
                     mensagemEmail.Body = mensagem;
                     mensagemEmail.Subject = assunto;
                     mensagemEmail.BodyEncoding = Encoding.UTF8;

@@ -13,8 +13,9 @@ namespace Comandas.Api
         private readonly ILogger<PulsarConsumer> _logger;
         private readonly IPulsarClient _pulsarClient;
         private readonly IConsumer<string> _consumer;
+        private readonly IServiceProvider _serviceProvider;
 
-        public PulsarConsumer(ILogger<PulsarConsumer> logger, IPulsarClient pulsarClient)
+        public PulsarConsumer(ILogger<PulsarConsumer> logger, IPulsarClient pulsarClient, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _pulsarClient = pulsarClient;
@@ -25,6 +26,7 @@ namespace Comandas.Api
                            .SubscriptionType(SubscriptionType.Shared)
                            .InitialPosition(SubscriptionInitialPosition.Earliest)
                            .Create();
+            _serviceProvider = serviceProvider;
 
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -36,6 +38,10 @@ namespace Comandas.Api
                 var mensagem = await _consumer.Receive(stoppingToken);
                 var json = Encoding.UTF8.GetString(mensagem.Data);
                 var mensagemconvertida = JsonConvert.DeserializeObject<EventoUsuario>(json);
+
+                var escopo = _serviceProvider.CreateScope();
+                var emailServices = escopo.ServiceProvider.GetRequiredService<IEmailService>();
+                emailServices.EnviarEmail(mensagemconvertida.Email, mensagemconvertida.Assunto, "Logado com sucesso");
                 _logger.LogInformation("MENSAGEM EXIBIDA PROCESSANDO {0}", json);
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
